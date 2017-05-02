@@ -1,0 +1,971 @@
+-
+ name: athread_init
+ params:
+ -
+  return int: |
+   成功：返回0，表示加速线程初始化成功；
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_init()将失败，并返回相应的值：
+   -EINVAL：初始化失败。
+ cates: [Athread]
+ tags: [MPE]
+ desc: |
+  完成加速线程库的初始化，在使用任何线程库接口前必须调用该接口。
+ header: "athread.h"
+# inst: test1
+# op: |
+#  c = a + b
+#  return c
+-
+ name: athread_create
+ params:
+ -
+  int id: 线程绑定ID号
+ -
+  start_routine fpc: 函数指针
+ -
+  void* arg: 函数f的参数起始地址
+ -
+  return int: |
+   成功：返回0。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_create()将失败，并返回相应的值：
+   -EAGIAN：超出了系统限制，创建的线程太多。
+   -EINVAL：ID号非法(负数，或者超过最大线程数)；或者ID号已经被占用，被占资源没有释放。
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  在当前进程中添加新的受控线程。线程执行的起始任务由函数fpc指定；函数fpc的参数由arg提供。
+  线程绑定ID号后，线程位置跟ID号无关，如果需要知道线程在核组中所占用的从核资源信息，可以调用相关接口得到该类信息。
+-
+ name: athread_wait
+ params:
+ -
+  int id: 等待线程id号
+ -
+  return int: |
+   成功：返回0；
+   失败：其它任何返回值都表示出现了错
+   -ESRCH：没有找到指定线程ID对应的线程。
+   -EINVAL：ID号非法。
+ desc: |
+  显式阻塞调用该线程，直到指定的线程终止。指定的线程必须位于当前的进程中。
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+-
+ name: athread_end
+ params:
+ -
+  int id: 指定线程ID号
+ -
+  return int: |
+   成功：返回0，线程所占用的从核资源被成功关闭。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_end()将失败，并返回相应的值。
+   -ESRCH：没有找到给定线程ID对应的线程。
+   -EINVAL：线程从核流水线终止失败，ID对应线程仍然在作业运行中。
+ desc: |
+  在确定线程所占从核无相关作业后，停滞从核流水线，关闭从核，该从核在本进程中将无法再次使用。
+  必须保证从核无任何用户作业才能使用该函数。
+ eg: |
+  typedef void * (*start_routine)(void *);
+  int fun(void * arg){
+    retrun (int)arg[0]+(int)arg[1];
+  }
+  main(){
+    int tid1,tid2;
+    int arg1[2],arg2[2];
+    //线程库初始化
+    athread_init();
+    //创建绑定线程，线程ID号为0
+    arg1[0]=1;
+    arg1[1]=2;
+    athread_create(0, fun,arg1);
+    //创建绑定线程，线程ID号为1
+    arg2[0]=3;
+    arg2[1]=4;
+    athread_create(1, fun,arg2);
+    //等待线程结束
+    athread_wait(0);
+    athread_wait(1);
+    //关闭线程所占从核流水线，该从核无法在本进程中继续使用
+    athread_end(0);
+    athread_end(1);
+  }
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+-
+ name: athread_spawn
+ params:
+ -
+  start_routine fpc: 函数指针；
+ -
+  void* arg: 函数f的参数起始地址。
+ -
+  return int: |
+   成功：返回0。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_spawn()将失败，并返回相应的值。
+   -EINVAL：线程组创建失败。
+ desc: |
+  在当前进程中添加新的受控线程组。线程执行的任务由函数fpc指定；函数fpc的参数由arg提供。
+  调用时athread_spawn接口时，启动核组中的所有可用从核资源。如果需要知道线程组在核组中所占用的从核资源信息，可以调用相关接口得到该类信息。
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+-
+ name: athread_join
+ params:
+ -
+  return int: |
+   成功：返回0；
+   失败：其它任何返回值都表示出现了错
+   -EINVAL：核组内无线程组运行。
+ desc: |
+  显式阻塞等待该线程组，直到指定的线程组终止。指定的线程组必须位于当前的进程中。
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+-
+ name: athread_halt
+ desc: |
+  在确定线程组所占所有从核无相关作业后，停滞从核组流水线，关闭从核组，该从核组在本进程无法再次使用。
+  必须保证从核组无任何用户作业才能使用该函数。
+ params:
+ -
+  return int: |
+   成功：返回0，线程所占用的从核资源被成功关闭。
+   失败：其它任何返回值都表示出现错误，如果监测到以下任一情况，athread_halt()将失败，并返回相应的值。
+   -EINVAL：无法正常关闭从核资源。
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+-
+ name: athread_spawn_group
+ desc: |
+  在当前进程中添加新的带屏蔽码的受控线程组。线程执行的任务由函数fpc指定；函数fpc的参数由arg提供。
+  调用时athread_spawn_group接口时，启动屏蔽码中所有从核资源。如果需要知道线程组在核组中所占用的从核资源信息，可以调用相关接口得到该类信息。
+ params:
+ -
+  unsigned long gmask: 从核屏蔽码；
+ -
+  start_routine fpc: 函数指针；
+ -
+  void* arg: 函数f的参数起始地址。
+ -
+  return int: |
+   成功：返回0。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_spawn_group()将失败，并返回相应的值。
+   -EINVAL：线程组创建失败。
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+-
+ name: athread_join_group
+ desc: |
+  显式阻塞等待带屏蔽码线程组任务结束，直到指定的线程组终止后退出该接口。指定的线程组必须位于当前的进程中。
+ params:
+ -
+  unsigned long gmask: 从核屏蔽码
+ -
+  return int: |
+   成功：返回0；
+   失败：其它任何返回值都表示出错
+   -EINVAL：核组内无线程组运行。
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+-
+ name: athread_task
+ desc: |
+  创建抢占动态调度主核线程。执行的线程任务由函数fpc指定；arg由用户指定线程任务总数，该值表示任务结束的判断标志。
+ params:
+ -
+  start_routine fpc: 函数指针；
+ -
+  void* arg: 任务总数
+ -
+  return int: |
+   成功：返回0；
+   失败：其它任何返回值都表示出错
+   -EINVAL：线程组创建失败。
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+-
+ name: athread_spawn_task
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  创建抢占动态调度从核线程组。执行的线程任务由函数fpc指定；arg由用户指定线程任务总数，该值表示任务结束的判断标志。
+  由于主从核代码对应使用不同的编译器，从核编译的代码不能被主核调用，反之亦然，用户必须保证主核、从核参与的抢占任务有各自对应的代码和编译支撑。
+ params:
+ -
+  start_routine fpc: 函数指针；
+ -
+  void* arg: 任务总数
+ -
+  return int: |
+   成功：返回0。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_spawn_task()将失败，并返回相应的值。
+   -EINVAL：线程组创建失败。
+-
+ name: athread_get_max_threads
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  使用该接口得到当前进程的可用的所有核组线程资源总数。
+ params:
+ -
+  return int: |
+   成功：返回核组内可用最大线程个数(1<=ret<=64)；
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get_max_threads将失败，并返回相应的值。
+   -EINVAL：返回失败，出现异常。
+-
+ name: athread_set_num_threads
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  使用该接口设置当前进程下一个并行区启动的所有核组线程总数。
+ params:
+ -
+  int num: 线程总数
+ -
+  return int: |
+   成功：0；
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_set_num_threads将失败，并返回相应的值。
+   -EAGAIN：设置线程数目超过了可用线程资源，将返回该值。
+   -EINVAL：并行区线程数设置失败，比如上个并行区任务未完成。
+-
+ name: athread_get_num_threads
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  使用该接口得到当前进程启动的所有核组线程总数。
+ params:
+ -
+  return int: |
+   成功：返回当前核组内线程个数(1<=ret<=64)；
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get_num_threads将失败，并返回相应的值。
+   -EINVAL：返回失败，出现异常。
+-
+ name: athread_cancel
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  该函数用来终止指定线程，线程ID以及资源可以立即收回。
+  线程结束可以通过以下方法来终止执行：
+  从线程的第一个过程返回，即线程的启动例程。参考athread_create。
+  调用athread_cancel，提前退出。
+ params:
+ -
+  int id: 指定退出线程号
+ -
+  return int: |
+   成功：返回0；
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_cancel将失败，并返回相应的值。
+   -ESRCH：没有找到指定线程ID对应的线程。
+   -EINVAL：ID号非法。
+   -EFAULT：ID线程对应从核故障。
+-
+ name: athread_signal
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc:
+  接收中断，并指定中断处理函数。
+  参考athread_sigqueue()接口。
+ params:
+ -
+  int signo: 中断信号
+ -
+  start_routine fpc: 中断处理函数
+ -
+  return void:
+-
+ name: Exception_Kind
+ params:
+ -
+  enum UNALIGN: 不对界异常
+ -
+  enum ILLEGAL:	非法指令
+ -
+  enum OVI: 整数溢出
+ -
+  enum INE: 非精确结果
+ -
+  enum UNF: 下溢
+ -
+  enum OVF: 上溢
+ -
+  enum DBZ: 除数为0
+ -
+  enum INV: 无效操作
+ -
+  enum DNO: 非规格化数
+ -
+  enum CLASSE1:	分类计数器溢出
+ -
+  enum CLASSE2:	分类参数设置异常
+ -
+  enum SELLDWE:	向量查表异常
+ -
+  enum LDME: LDM相关异常
+ -
+  enum SDLBE: SDLB代换时发生越权或越界
+ -
+  enum MABC: 访问主存的地址超出主存实际配置的容量
+ -
+  enum MATNO: 主存访问目标核组不在位
+ -
+  enum RAMAR: 从核收到访存异常错误响应
+ -
+  enum IFLOWE: 指令流异常
+ -
+  enum SBMDE1: SBMD匹配异常和SBMD查询异常
+ -
+  enum SBMDE2: 其他SBMD异常
+ -
+  enum SYNE1: 从核发出的同步向量中不包含本从核
+ -
+  enum SYNE2: 可降级同步不使能
+ -
+  enum RCE: 通信异常
+ -
+  enum DMAE1: DMA产生DMA描述符静态检查异常
+ -
+  enum DMAE2: DMA产生DMA描述符静态检查警告
+ -
+  enum DMAE3: 保留
+ -
+  enum DMAE4: 行集合模式使用过程中有可能出现访问地址超出LDM容量
+ -
+  enum DMAE5: 保留
+ -
+  enum IOE1: 访问保留的IO空间地址
+ -
+  enum IOE2: IO访问越权
+ -
+  enum IOE3: IO不可访问
+ -
+  enum OTHERE: 用户不关心的各类异常
+ -
+  return enum:
+ desc: 可以挂载的异常类型
+-
+ name: athread_expt_signal
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  挂载特定异常的处理函数。  
+  a：异常类型：
+    根据申威26011从核异常类型，用户可以挂载Exception_Kind中的32种异常处理信号。
+  b：挂载方式
+    athread_expt_signal（int exceptnum， void *handler）
+  c：异常处理函数
+    用户自定义异常处理函数原型为：
+    handler_t * handler(int signum, siginfo_t *sinfo, struct sigcontext *sigcontext)
+    第一个参数：signum为异常信号
+    第二个参数：sinfo的信息如下：
+    sinfo->si_signo =signum；	// 异常信号
+    sinfo->si_pid = peid;		// 出现异常的从核号
+    sinfo->si_uid = cgid;		// 出现异常的核组号
+    
+    第三个参数：sigcontext的前三个参数用来保留特定信息，如下：
+    sigcontext-> sc_onstack			// 从核异常PC是否精确标志
+    sigcontext->sc_pc				// 从核异常PC 
+    sigcontext-> sc_mask				// 从核数据流异常访存信息
+    sc_pc如果为0表示没有异常PC，不为0的情况下根据sc_onstack判断是否为精确PC。
+    sc_onstack为0表示没有精确异常pc，此时sc_pc记录的是发生异常时的非精确PC；sc_onstack为1表示有精确异常pc，此时sc_pc记录的是发生异常时的精确PC；
+    sc_mask项只对数据流异常DFLOWE有效，为4b`0001表示LD主存，为4b`0010表示ST主存，为4b`0100表示DMA_GET，为4b`1000表示DMA_PUT。
+    sigcontext其它各个域的内容由os确定并原样传给用户处理程序。
+    发生异常时，线程库会报出第一个捕获的异常，这个异常可以是核组异常也可以是从核异常。如果用户没有挂载相应该异常的处理函数，那么线程库会打印异常相关的所有信息，halt发生异常的从核，并退出程序；如果用户挂载了该异常的处理函数，则进入用户定义的异常处理函数。
+    （For 并行C库：athread_expt_signal_for_ccc(void *handler)
+    并行C库使用该函数对所有异常事件进行挂载，发生异常时，将会进入并行C库定义的异常函数进行处理，handler函数的参数如下：
+    void  handle(int sig, siginfo_t *sinfo, struct sigcontext *sigcontext)
+    上述三个参数的内容由操作系统确定并原样传给并行C库异常处理函数
+    ）
+ params:
+ -
+  int signo: 异常信号
+ -
+  start_routine fpc: 异常处理函数
+-
+ name: IO_addr
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc:
+  主核可以通过IO访问局存，该宏返回从核LDM变量element的IO地址。
+  IO_addr宏不会判断penum和cgnum的合法性，由用户保证。
+ params:
+ -
+  element: 从核程序内的局存私有变量__thread_local elment，主核使用IO_addr接口前必须加extern __thread声明成外部变量
+ -
+  penum: 核号
+ -
+  cgnum: 核组号
+ -
+  return: 返回IO地址
+ eg: |
+  从核程序slave.c:
+    __thread_local char ch='b';
+    __thread_local long para[10] __attribute__((__aligned__(128)))= {0x123, 0x234, 0x345, 0x456};
+  主核程序main.c：
+    extern long __thread para[];
+    extern char __thread ch;
+    unsigned long  LDM_addr;
+    LDM_addr = IO_addr(para[0], 23，0);
+  这样，LDM_addr等于第0号核组第23号从核上para[0]的IO地址
+-
+ name: h2ldm
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  主核可以通过IO访问局存，该宏直接在主核对从核LDM变量element进行IO存取操作
+  h2ldm宏不会判断penum和cgnum的合法性，由用户保证。
+ params:
+ -
+  element: 从核程序内的局存私有变量__thread_local elment，主核使用IO_addr接口前必须加extern __thread声明成外部变量
+ -
+  penum: 核号
+ -
+  cgnum: 核组号
+ -
+  return:
+ eg: |
+  从核程序slave.c:
+    __thread_local char ch='b';
+    __thread_local long para[10] __attribute__((__aligned__(128)))= {0x123, 0x234, 0x345, 0x456};
+  主核程序main.c：
+    extern long __thread para[];
+    extern char __thread ch;
+    unsigned long  LDM_addr;
+    h2ldm(para[0], 23, 0) = 0xaaa;
+    h2ldm(ch, 5，1) = 'z';
+  主核对0号核组第23号从核上局存变量para[0]赋值；主核对1号核组第5号从核上的局存变量ch赋值。
+  备注：
+    线程create和spawn接口只带一个参数接口。而主核访问从核局存接口可以用作主核对核组加速区进行批量的参数赋值。比如：从核程序专门申请一块局存空间用作存放参数，主核在启动不同的加速区之前可以对这块参数区进行赋值；如果每个从核上分配相同的参数，通常最优的做法是只对某一个从核进行参数赋值，然后从核通过寄存器通信将参数广播到核组上所有的从核。
+-
+ name: athread_idle
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc:
+  使用该函数可获得当前从核线程组是否处于空闲状态。
+  这里的空闲状态是指等待任务的状态，也即：线程组未执行用户spawn的从核加速线程或线程组已经完成用户spawn的从核加速线程。
+ params:
+ -
+  return unsigned long: |
+   如果从核组处于空闲状态则返回当前可用的从核位图；否则返回0。
+ eg: |
+  unsigned long idleslave;
+  if(idleslave=athread_idle())
+  {
+    用从核优化(spawn)；
+    ……
+  }
+-
+ name: athread_task_info
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  查询当任务所在CPU中，参与任务执行的核组个数以及当前所在核组的核组号。分别通过查看内部库变量__cgid/__cgnum来得到相应的值。
+  调用该接口前，必须先调用athread_task_info来初始化__cgid和__cgnum，通过内部变量来通知参与同步的核组的个数。
+  该接口会占有交叉段前64B（0x6000000000~0x6000000000+0x40）的数据作为锁空间，用户在使用该接口时需要注意避开该空间，防止不可预测的错误出现。
+-
+ name: athread_master_sync
+ header: athread.h
+ tags: [MPE]
+ cates: [Athread]
+ desc: |
+  核组间同步。
+  调用该接口前，必须先调用athread_task_info来初始化__cgid和__cgnum，通过内部变量来通知参与同步的核组的个数。
+  该接口会占有交叉段前64B（0x6000000000~0x6000000000+0x40）的数据作为锁空间，用户在使用该接口时需要注意避开该空间，防止不可预测的错误出现。
+
+-
+ name: athread_get_id
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  使用该函数获得本地单线程的逻辑标识号(即ID号)。该接口主从核通用。
+  只要当线程是被用athread_create创建单线程接口启动的线程才会有绑定的标识符。
+ params:
+ -
+  int core: 指定查询物理核号，-1默认本地从核(从核接口有效)。
+ -
+  return int: |
+   成功：线程逻辑ID号(0<=ret<=63)。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get_id将失败，并返回相应的值。
+   -EINVAL：返回失败，出现异常。
+ eg: |
+  int myid；
+  myid = athread_get_id(-1);
+-
+ name: athread_get_core
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  使用该接口获得对应线程的物理从核号。该接口主从核通用。
+  返回值低6位有效，低3位为列号，高3位为行号，分别表示核组8*8阵列。
+ params:
+ -
+  int id: 指定查询线程号，-1默认本地线程(从核接口有效)。
+ -
+  return int: |
+   成功：线程所占从核物理号(0<=ret<=63)。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get_core将失败，并返回相应的值。
+   -EINVAL：返回失败，出现异常。
+ eg: |
+  int mycore；
+  mycore = athread_get_core(-1);
+-
+ name: athread_sigqueue
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  从核给主核发送携带消息异步中断，中断发出后，从核并不等待主核是否接收到中断并完成中断处理函数，而是继续执行后续的从核代码。
+ params:
+ -
+  int pid: 主进程，用0表示
+ -
+  int signo: 中断号
+ -
+  const union sigval value: 中断消息
+ -
+  return int: |
+   成功：返回0；
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_sigqueue ()将失败，并返回相应的值。
+   -EINVAL：signo无效，或者发送消息失败。
+ eg: |
+  如何正确挂载一个中断处理函数：
+  假设主从核约定当从核发出一个SW3_SIGMAX-1的信号的时候，则主核调用中断处理函数x_handler。
+  从核程序：
+  a=1234567890；
+  fun()
+  {
+    //将中断信号SW3_SIGMAX-1
+    //以及中断携带信息&a发给主进程。
+    athread_sigqueue(0，SW3_SIGMAX-1，&a)
+  }
+  主核程序：
+    x_handler(int sig, siginfo_t *sinfo, struct sigcontext *sigcontext)
+  {
+    union sigval sv;
+    printf("x_handler begin !\n");
+    //sv==从核中断携带信息&a
+    sv = sinfo->si_value;
+  }
+  main()
+  {
+    athread_signal(SW3_SIGMAX-1，x_handler); //和signal函数用法一致
+  }
+-
+ name: athread_sigsend
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  从核给主核发送携带消息同步中断，中断发出后，从核等待主核接收到中断直到完成中断处理函数后才能继续执行后序从核代码。
+ params:
+ -
+  int pid: 主进程，用0表示
+ -
+  int signo: 中断号
+ -
+  const union sigval value: 中断消息
+ -
+  return int: |
+   成功：返回0；
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_sigsend ()将失败，并返回相应的值。
+   -EINVAL：signo无效，或者发送消息失败。
+ eg: |
+  参考athread_sigqueue说明。
+-
+ name: athread_get
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  从核局存LDM接收主存MEM数据，进行主存MEM到从核LDM的数据get操作，将MEM的数据get到LDM指定位置。传输模式由mode指定，如果是在广播模式和广播行模式下，要进行屏蔽寄存器配置；在其它模式下，mask值无效。
+
+ params:
+ -
+  dma_mode mode: DMA传输命令模式；
+ -
+  void* src: DMA传输主存源地址；
+ -
+  void* dest: DMA传输本地局存目标地址；
+ -
+  int len: DMA传输数据量，以字节为单位；
+ -
+  void* reply: DMA传输回答字地址，必须为局存地址，地址4B对界；
+ -
+  char mask: DMA传输广播有效向量，有效粒度为核组中一行，某位为1表示对应的行传输有效，作用于广播模式和广播行模式；
+ -
+  int stride: 主存跨步，以字节为单位；
+ -
+  int bsize: 行集合模式下，必须配置，用于指示在每个从核上的数据粒度大小；其它模式下，在DMA跨步传输时有效，表示DMA传输的跨步向量块大小，以字节为单位。
+ -
+  return int: |
+   成功：返回0。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get将失败，并返回相应的值。
+   -EINVAL：返回失败，出现异常。
+ eg: |
+  __thread_local long  ldm_a[64];
+  __thread long  mem_b[64];
+  __thread_local  int reply=0;
+  athread_get(PE_MODE,mem_a,ldm_a,64*8,&reply,0,0,0);
+  //以单从核模式，从核私有连续段以mem_a为基地址取64*8B数据放入从核局存以ldm_a为基地址的连续64*8B的空间中，其中广播向量、主存跨步、向量块大小均为0。
+-
+ name: athread_put
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  从核局存LDM往主存MEM发送数据，进行从核LDM到主存MEM的数据put操作，将LDM的数据put到MEM指定的位置。传输模式由mode指定，不支持广播模式和广播行模式。
+  DMA传输命令模式参考athread_get接口附加说明。
+ params:
+ -
+  dma_mode mode: DMA传输命令模式；
+ -
+  void* src: DMA传输局存源地址；
+ -
+  void* dest: DMA传输主存目的地址；
+ -
+  int len: DMA传输数据量，以字节为单位；
+ -
+  void* reply: DMA传输回答字地址，必须为局存地址，地址4B对界；
+ -
+  int stride: 主存跨步，以字节为单位；
+ -
+  int bsize: 行集合模式下，必须配置，用于指示在每个从核上的数据粒度大小；其它模式下，在DMA跨步传输时有效，表示DMA传输的跨步向量块大小，以字节为单位。
+ -
+  return int: |
+   成功：返回0。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_put将失败，并返回相应的值。
+   -EINVAL：返回失败，出现异常。
+-
+ name: athread_get_p
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  物理地址数据接收，除源主存地址为物理地址外，其它使用方式与athread_get一致
+ params:
+ -
+  dma_mode mode: DMA传输命令模式；
+ -
+  void* src: DMA传输主存源地址；
+ -
+  void* dest: DMA传输本地局存目标地址；
+ -
+  int len: DMA传输数据量，以字节为单位；
+ -
+  void* reply: DMA传输回答字地址，必须为局存地址，地址4B对界；
+ -
+  char mask: DMA传输广播有效向量，有效粒度为核组中一行，某位为1表示对应的行传输有效，作用于广播模式和广播行模式；
+ -
+  int stride: 主存跨步，以字节为单位；
+ -
+  int bsize: 行集合模式下，必须配置，用于指示在每个从核上的数据粒度大小；其它模式下，在DMA跨步传输时有效，表示DMA传输的跨步向量块大小，以字节为单位。
+ -
+  return int: |
+   成功：返回0。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get将失败，并返回相应的值。
+   -EINVAL：返回失败，出现异常。
+-
+ name: athread_put_p
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  物理地址数据发送，除目的主存地址为物理地址外，其它使用方式与athread_put一致
+ params:
+ -
+  dma_mode mode: DMA传输命令模式；
+ -
+  void* src: DMA传输局存源地址；
+ -
+  void* dest: DMA传输主存目的地址；
+ -
+  int len: DMA传输数据量，以字节为单位；
+ -
+  void* reply: DMA传输回答字地址，必须为局存地址，地址4B对界；
+ -
+  int stride: 主存跨步，以字节为单位；
+ -
+  int bsize: 行集合模式下，必须配置，用于指示在每个从核上的数据粒度大小；其它模式下，在DMA跨步传输时有效，表示DMA传输的跨步向量块大小，以字节为单位。
+ -
+  return int: |
+   成功：返回0。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_put将失败，并返回相应的值。
+   -EINVAL：返回失败，出现异常。
+
+-
+ name: athread_dma_barrier
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  发起dma栏栅，对应dma命令操作码为barrier_group
+-
+ name: scope
+ params:
+ -
+  enum ROW_SCOPE: 行同步，低8位有效
+ -
+  enum COL_SCOPE: 列同步，低8位有效
+ -
+  enum ARRAY_SCOPE: 全核组同步，低16位有效，其中16位中低8位为列同步屏蔽码、高8位为行同步屏蔽码
+ -
+  return enum:
+ desc:
+  athread_syn的同步域。
+-
+ name: athread_syn
+ header: slave.h
+ tags: [CPE]
+ cates: [Athread]
+ desc: |
+  核组内从核同步控制。
+ params:
+ -
+  scope scp: 同步范围控制
+ -
+  int mask: 同步屏蔽码
+ -
+  return int: |
+   成功：返回0。
+   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_syn将失败，并返回相应的值。
+   -EINVAL：返回失败，出现异常。
+-
+ name: get_allocatable_size
+ header: slave.h
+ tags: [CPE]
+ cates: [LDM Malloc]
+ desc: |
+  得到当前可动态分配的LDM空间大小，也即局存动态分配运行时库管理的LDM空间大小
+ params:
+ -
+  return size_t:
+-
+ name: ldm_malloc
+ header: slave.h
+ tags: [CPE]
+ cates: [LDM Malloc]
+ desc: |
+  局存空间申请。
+ params:
+ -
+  size_t size: 以字节为单位的空间大小
+ -
+  return void*: |
+   成功返回分配LDM空间的起始地址；
+   失败返回NULL；
+-
+ name: ldm_free
+ header: slave.h
+ tags: [CPE]
+ cates: [LDM Malloc]
+ desc: |
+  局存空间释放，释放空间起始地址为addr。
+ params:
+ -
+  void* addr: 必须是前面某一次ldm_malloc返回的分配成功的局存地址；
+ -
+  size_t size: 显示指定释放空间的大小，一般必须与前面某一次ldm_malloc的大小相匹配
+-
+ name: dma_mode
+ params:
+ -
+  enum PE_MODE: 单从核模式
+ -
+  enum BCAST_MODE: 广播模式
+ -
+  enum ROW_MODE: 行模式
+ -
+  enum BROW_MODE: 广播行模式
+ -
+  enum RANK_MODE: 行集合模式
+ -
+  return enum:
+ desc: 数据DMA中使用的DMA的命令模式。
+-
+ name: dma_op
+ params:
+ -
+  enum DMA_PUT: 从核向主存存放数据
+ -
+  enum DMA_GET: 从核从主存获取数据
+ -
+  enum DMA_PUT_P: 从核向主存存放数据（物理地址）
+ -
+  enum DMA_GET_P: 从核从主存获取数据（物理地址）
+ -
+  enum DMA_BARRIER: DMA栏栅
+ -
+  return enum:
+ desc: DMA操作类型。
+-
+ name: dma_set_size
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ params:
+ -
+  dma_desc* dma_d:
+ -
+  int size:
+ -
+  return dma_desc:
+ desc: |
+  设置dma描述符的数据传输量属性。
+  数据传输量
+ eg: |
+  dma_set_size(dma_d，256);
+-
+ name: dma_set_reply
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ params:
+ -
+  dma_desc* dma_d:
+ -
+  int* reply:
+ -
+  return dma_desc:
+ desc: |
+  设置dma描述符的回答字属性。
+ eg: |
+  __thread_local reply；
+  dma_set_reply(dma_d, &reply);
+-
+ name: dma_set_op
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ params:
+ -
+  dma_desc* dma_d:
+ -
+  dma_op op:
+ -
+  return dma_desc:
+ desc: |
+  设置dma描述符的dma操作属性。
+ eg: |
+  dma_set_op(dma_d, DMA_PUT);
+-
+ name: dma_set_mode
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ params:
+ -
+  dma_desc* dma_d:
+ -
+  dma_mode mode:
+ -
+  return dma_desc:
+ desc: 设置dma描述符的dma模式属性。
+ eg: |
+  dma_set_op(dma_d, PE_MODE);
+-
+ name: dma_set_mask
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ params:
+ -
+  dma_desc* dma_d:
+ -
+  int mask:
+ -
+  return dma_desc:
+ desc: |
+  设置dma描述符的屏蔽码属性。
+  只用于广播和广播行模式
+ eg: |
+  dma_set_mask(dma_d, 1);
+-
+ name: dma_set_bsize
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ params:
+ -
+  dma_desc* dma_d:
+ -
+  int bsize:
+ -
+  return dma_desc:
+ desc: |
+  设置dma描述符的跨步向量块大小属性。
+  只用于跨步模式以及行集合模式；
+  广播模式下的对界（TODO）
+  行集合模式下bsize是传输到每个从核上的块大小。
+ eg: |
+  dma_set_bsize(dma_d, 0x32);
+-
+ name: dma_set_stepsize
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ params:
+ -
+  dma_desc* dma_d:
+ -
+  int length:
+ desc: |
+  设置dma描述符的主存跨步长度属性。
+  只用于跨步模式以及行集合模式；
+  广播模式下的对界（TODO）
+ eg: |
+  dma_set_stepsize(dma_d, 0x128);
+-
+ name: dma
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ params:
+ -
+  dma_desc dma_d:
+ -
+  long mem:
+ -
+  long ldm:
+ inst: dma
+ desc: |
+  根据参数指定的dma描述符、主存起始地址和局存起始地址，发起dma；
+-
+ name: dma_wait
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ params:
+ -
+  int* reply:
+ -
+  int count:
+ desc:
+   根据参数指定的回答字地址等待，直到回答字的值等于count
+-
+ name: dma_barrier
+ header: dma.h
+ tags: [CPE]
+ cates: [DMA]
+ inst: dma
+ desc:
+  发起本从核的dma栏栅

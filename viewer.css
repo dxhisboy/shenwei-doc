@@ -1,0 +1,42 @@
+body{
+    font-family: consolas, monospace;
+}
+.kwd-type{
+    color: #a7b345;
+}
+
+.kwd-var{
+    color: #268bd2;
+}
+
+.kwd-stub{
+    color: #6c71c4;
+    font-weight: bold;
+}
+
+.kwd{
+    font-family: consolas, monospace;
+}
+.mono{
+    font-family: consolas, monospace;
+    cursor: pointer;
+}
+.span-warpper{
+    font-size: 0;
+}
+
+.span-warpper span{
+    font-size: initial;
+}
+
+div#app{
+    position: relative;
+}
+div.cate-list{
+    width: 100px;
+    float: left;
+}
+
+div.stub-list{
+    margin-left: 100px;
+}

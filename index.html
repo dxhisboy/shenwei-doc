@@ -1,0 +1,170 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>文档查看器</title>
+    <script src="lib/vue.min.js"></script>
+    <script src="lib/js-yaml.min.js"></script>
+    
+    <script type="text/x-template" id="stub-template">
+      <div class="list-group-item">
+	<div class="list-group-item-heading mono span-warpper" @click="toggleExpanded($event)">
+	  <span class="glyphicon" :class="{'glyphicon-collapse-down': expanded, 'glyphicon-expand': !expanded}" aria-hidden="true" style="top:2.5px"></span>
+	  <span class="kwd">&nbsp;</span>	 
+	  <span class="kwd kwd-type">{{stub.ret.type}}</span>
+	  <span class="kwd">&nbsp;</span>
+	  <span class="kwd kwd-stub">{{stub.name}}</span>
+	  <span class="kwd" v-if="!isEnum">(</span>
+	  <stub-param
+	     v-for="(param, index) in stub.params"
+	     :param="param" :index="index" v-if="!isEnum">
+	  </stub-param>
+	  <span class="kwd" v-if="!isEnum">)</span>
+	  <span class="kwd" v-for="tag in stub.tags">
+	    &nbsp;<code>{{tag}}</code>
+	  </span> 
+	</div>
+	<div class="list-group-item-text" v-if="expanded">
+	  <div class="panel panel-default">
+	    <div class="panel-heading">
+	      <b>基本信息:</b>
+	    </div>
+	    <div class="panel-body mono">
+	      <span v-if="stub.header">
+		#include "{{stub.header}}"<br>
+	      </span>
+	      <span v-if="stub.inst">
+		<b>指令:</b> {{stub.inst}}<br>
+	      </span>
+	    </div>
+	    
+	    <div class="panel-heading" v-if="hasParamDesc">
+	      <b>参数和返回值:</b>
+	    </div>
+	    <div class="table-responsive" v-if="hasParamDesc">
+	      <table class="table mono">
+		<colgroup>
+		  <col class="col-xs-3">
+		  <col class="col-xs-9">
+		</colgroup>
+		<thead>
+		  <tr>
+		    <td><b>名称</b></td>
+		    <td><b>描述</b></td>
+		  </tr>
+		</thead>
+		<tbody>
+		  <tr v-for="param in stub.params" v-if="param.desc">
+		    <td><b>{{param.name}}</b></td>
+		    <td>
+		      <p v-for="desc in param.desc">
+			{{desc}}
+		      </p>
+		    </td>
+		  </tr>
+		  <tr v-if="stub.ret.desc">
+		    <td><b>返回值</b></td>
+		    <td>
+		      <p v-for="desc in stub.ret.desc">
+			{{desc}}
+		      </p>
+		    </td>
+		  </tr>
+		</tbody>
+	      </table>
+	    </div>
+	    <div class="panel-heading">
+	      <b>描述:</b>
+	    </div>
+	    <div class="panel-body">
+	      <p v-for="desc in stub.desc">
+		{{desc}}
+	      </p>
+	    </div>
+
+	    <div class="panel-heading" v-if="stub.eg">
+	      <b>例子:</b>
+	    </div>
+	    <div class="panel-body" v-if="stub.eg">
+	      <pre>{{stub.eg}}</pre>
+	    </div>
+
+	    <div class="panel-heading" v-if="stub.op">
+	      <b>等效操作:</b>
+	    </div>
+	    <div class="panel-body" v-if="stub.op">
+	      <pre>{{stub.op}}</pre>
+	    </div>
+
+	  </div>
+	</div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="param-template">
+      <span class="lst-param">
+	<span class="kwd" v-if="index>0">,</span>
+	<span class="kwd kwd-type">{{param.type}}</span>
+	<span class="kwd kwd-var">{{param.name}}</span>
+      </span>
+    </script>
+
+    <script type="text/x-template" id="filter-set">
+      <div class="panel panel-default">
+	<div class="panel-heading">
+	  <div class="row">
+	    <div class="col-xs-7">
+	      <span>按{{by}}过滤:</span>
+	    </div>
+	    <div class="col-xs-5">
+	      <input type="checkbox" v-model="any">
+	      <span>任意</span>
+	    </div>
+	  </div>
+	</div>
+	<div class="panel-body">
+	  <div v-for="name in names">
+	    <input type="checkbox" :value="name" v-model="checked">
+	    <span>{{name || alter || ""}}</span>
+	  </div>
+	</div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="searchbar">
+      <div class="input-group">
+	<input type="text" class="form-control" placeholder="Type something to search" v-model="keyword" @keyup="$parent.updateList()"></input>
+	<span class="input-group-addon">
+	  <input type="checkbox" v-model="withDesc" @change="$parent.updateList()"></input>
+	  <span>包括描述</span>
+	</span>
+      </div>
+    </script>
+    <link rel="stylesheet" href="lib/bootstrap.min.css">
+    <link rel="stylesheet" href="viewer.css">
+  </head>
+  <body>
+    <div id="app">
+      <div class="row">
+      </div>
+      <div class="row">
+	<div class="col-xs-3" @change="updateList()">
+	  <filter-set :names="cates" :by="'类型'" ref="catesflt"></filter-set>
+	  <filter-set :names="types" :by="'参数'" :mode="'all'" :alter="'Marco'" ref="typesflt"></filter-set>
+	  <filter-set :names="tags" :by="'标签'" ref="tagsflt"></filter-set>
+	</div>
+	<div class="col-xs-9">
+	  <div class="panel panel-default">
+	    <div class="panel-body">
+	      <searchbar ref="search"></searchbar>
+	    </div>
+	    <div class="list-group">
+	      <stub v-for="stub in showstubs" :stub="stub">
+	      </stub>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </body>
+  <script src="viewer.js"></script>
+</html>
