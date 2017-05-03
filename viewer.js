@@ -72,13 +72,14 @@ Vue.component("searchbar", {
     },
     methods: {
 	match: function(e){
-	    if (this.keywords.length == 0)
-		return true;
+	    console.log(this.keywords);
+	    var str = e.name;
+	    if (this.withDesc)
+		for (var p in e.desc)
+		    str += e.desc[p];
+	    console.log(str);
 	    for (var i = 0; i < this.keywords.length; i ++){
-		if (e.name.search(this.keywords[i]) == -1
-		    && !(this.withDesc
-			 && e.desc.search(this.keywords[i]) > -1
-			))
+		if (str.search(this.keywords[i]) == -1)
 		    return false;
 	    }
 	    return true;
@@ -105,6 +106,18 @@ var mainVue = new Vue({
 	    for (var p in catesMap)
 		cates.push(p);
 	    return cates;
+	},
+	headers: function(){
+	    var headersMap = {};
+	    for (var p in this.stubs){
+		var stub = this.stubs[p];
+		if (stub.header)
+		    headersMap[stub.header] = true;
+	    }
+	    var headers = [];
+	    for (var p in headersMap)
+		headers.push(p);
+	    return headers;
 	},
 	types: function(){
 	    var typesMap = {};
@@ -145,6 +158,7 @@ var mainVue = new Vue({
 	    var self = this;
 	    this.showstubs = this.stubs.filter(function (e){
 		return self.$refs.catesflt.match(e.cates || [])
+		    && self.$refs.hdrsflt.match([e.header || ""])
 		    && self.$refs.typesflt.match(types(e) || [])
 		    && self.$refs.tagsflt.match(e.tags || [])
 		    && self.$refs.search.match(e);

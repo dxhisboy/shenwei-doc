@@ -149,8 +149,9 @@
       <div class="row">
 	<div class="col-xs-3" @change="updateList()">
 	  <filter-set :names="cates" :by="'类型'" ref="catesflt"></filter-set>
-	  <filter-set :names="types" :by="'参数'" :mode="'all'" :alter="'Marco'" ref="typesflt"></filter-set>
+	  <filter-set :names="headers" :by="'header'" ref="hdrsflt"></filter-set>
 	  <filter-set :names="tags" :by="'标签'" ref="tagsflt"></filter-set>
+	  <filter-set :names="types" :by="'参数'" :mode="'all'" :alter="'Marco'" ref="typesflt"></filter-set>
 	</div>
 	<div class="col-xs-9">
 	  <div class="panel panel-default">
