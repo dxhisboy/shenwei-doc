@@ -828,7 +828,7 @@
  -
   int size:
  -
-  return dma_desc:
+  return void:
  desc: |
   设置dma描述符的数据传输量属性。
   数据传输量
@@ -845,7 +845,7 @@
  -
   int* reply:
  -
-  return dma_desc:
+  return void:
  desc: |
   设置dma描述符的回答字属性。
  eg: |
@@ -862,7 +862,7 @@
  -
   dma_op op:
  -
-  return dma_desc:
+  return void:
  desc: |
   设置dma描述符的dma操作属性。
  eg: |
@@ -878,7 +878,7 @@
  -
   dma_mode mode:
  -
-  return dma_desc:
+  return void:
  desc: 设置dma描述符的dma模式属性。
  eg: |
   dma_set_op(dma_d, PE_MODE);
@@ -893,7 +893,7 @@
  -
   int mask:
  -
-  return dma_desc:
+  return void:
  desc: |
   设置dma描述符的屏蔽码属性。
   只用于广播和广播行模式
@@ -910,7 +910,7 @@
  -
   int bsize:
  -
-  return dma_desc:
+  return void:
  desc: |
   设置dma描述符的跨步向量块大小属性。
   只用于跨步模式以及行集合模式；
@@ -969,3 +969,378 @@
  inst: dma
  desc:
   发起本从核的dma栏栅
+-
+ name: simd_load
+ desc: |
+  扩展类型的装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
+  装入的内存地址必须32字节对界。
+ params:
+ -
+  intv8 va: 结果存储在va中
+ -
+  int* addr: 要装入的地址
+ cates: [SIMD, SIMD-load, SIMD-int]
+ tags: [CPE, MPE]
+ header: simd.h
+ inst: vldd
+-
+ name: simd_load
+ desc: |
+  扩展类型的装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
+  装入的内存地址必须32字节对界。
+ params:
+ -
+  doublev4 va: 结果存储在va中
+ -
+  double* addr: 要装入的地址
+ cates: [SIMD, SIMD-load, SIMD-dp]
+ tags: [CPE, MPE]
+ header: simd.h
+ inst: vldd
+-
+ name: simd_load
+ desc: |
+  扩展类型的装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
+  装入的内存地址必须16字节对界。
+ params:
+ -
+  floatv4 va: 结果存储在va中
+ -
+  float* addr: 要装入的地址
+ cates: [SIMD, SIMD-load, SIMD-sp]
+ tags: [CPE, MPE]
+ header: simd.h
+ inst: vlds
+-
+ name: simd_loade
+ desc: |
+  扩展类型的装入并扩展，将8字节（floatv4类型的装入是4字节）长度的数据从连续内存区域中装入到一个向量变量的低64位，并且将该数据扩展到高192位，使向量寄存器的四个寄存器具有相同的值。intv8是取出4字节，然后扩展成8个分量。
+ params:
+ -
+  intv8 va: 结果存储在va中
+ -
+  int* addr: 要装入的地址
+ inst: ldwe
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-load, SIMD-int]
+-
+ name: simd_loade
+ desc: |
+  扩展类型的装入并扩展，将8字节（floatv4类型的装入是4字节）长度的数据从连续内存区域中装入到一个向量变量的低64位，并且将该数据扩展到高192位，使向量寄存器的四个寄存器具有相同的值。intv8是取出4字节，然后扩展成8个分量。
+ params:
+ -
+  doublev4 va: 结果存储在va中
+ -
+  double* addr: 要装入的地址
+ inst: ldde
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-load, SIMD-dp]
+-
+ name: simd_loade
+ desc: |
+  扩展类型的装入并扩展，将8字节（floatv4类型的装入是4字节）长度的数据从连续内存区域中装入到一个向量变量的低64位，并且将该数据扩展到高192位，使向量寄存器的四个寄存器具有相同的值。intv8是取出4字节，然后扩展成8个分量。
+ params:
+ -
+  floatv4 va: 结果存储在va中
+ -
+  float* addr: 要装入的地址
+ inst: ldse
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-load, SIMD-sp]
+-
+ name: simd_store
+ desc: |
+  扩展类型的存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。 
+ params:
+ -
+  intv8 va: 要存储的向量
+ -
+  int* addr: 存储到的地址
+ inst: vstw
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-store, SIMD-int]
+-
+ name: simd_store
+ desc: |
+  扩展类型的存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。 
+ params:
+ -
+  doublev4 va: 要存储的向量
+ -
+  double* addr: 存储到的地址
+ inst: vstd
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-store, SIMD-dp]
+-
+ name: simd_store
+ desc: |
+  扩展类型的存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。 
+ params:
+ -
+  floatv4 va: 要存储的向量
+ -
+  float* addr: 存储到的地址
+ inst: vsts
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-store, SIMD-sp]
+-
+ name: simd_loadu
+ desc: |
+  扩展类型的不对界装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
+ params:
+ -
+  intv8 va: 结果存储在va中
+ -
+  int* addr: 装入的地址
+ inst: vldw_ul, vldw_uh
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-load, SIMD-int]
+-
+ name: simd_loadu
+ desc: |
+  扩展类型的不对界装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
+ params:
+ -
+  doublev4 va: 结果存储在va中
+ -
+  double* addr: 装入的地址
+ inst: vldd_ul, vldd_uh
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-load, SIMD-dp]
+-
+ name: simd_loadu
+ desc: |
+  扩展类型的不对界装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
+ params:
+ -
+  floatv4 va: 结果存储在va中
+ -
+  float* addr: 装入的地址
+ inst: vlds_ul, vlds_uh
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-load, SIMD-sp]
+-
+ name: simd_storeu
+ desc: |
+  扩展类型的不对界存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。
+ params:
+ -
+  intv8 va: 要存储的向量
+ -
+  int* addr: 存储到的地址
+ inst: vstw_ul, vstw_uh
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-store, SIMD-int]
+-
+ name: simd_storeu
+ desc: |
+  扩展类型的不对界存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。
+ params:
+ -
+  doublev4 va: 要存储的向量
+ -
+  double* addr: 存储到的地址
+ inst: vstd_ul, vstd_uh
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-store, SIMD-dp]
+-
+ name: simd_storeu
+ desc: |
+  扩展类型的不对界存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。
+ params:
+ -
+  floatv4 va: 要存储的向量
+ -
+  float* addr: 存储到的地址
+ inst: vsts_ul, vsts_uh
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-store, SIMD-sp]
+-
+ name: simd_vaddw
+ desc: |
+  intv8类型的加法，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b相加。可以使用“+”符号替换。
+ params:
+ -
+  intv8 va: 第一个加数
+ -
+  intv8 vb: 第二个加数
+ -
+  return intv8: va + vb
+ inst: vaddw
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_vsubw
+ desc: |
+  intv8类型的减法，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b相减。可以使用“-”符号替换。
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: va - vb
+ inst: vsubw
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_vandw
+ desc: |
+  intv8类型的逻辑与，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑与运算。可以使用“&”符号替换。
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: va & vb
+ inst: vandw/vlogc0
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_vbicw
+ desc: |
+  intv8类型的逻辑与非，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑与非运算。可以使用“&”和“~”符号替换。
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: va & ~vb
+ inst: vbicw/vlog30
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_vbisw
+ desc: |
+  intv8类型的逻辑或，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑或运算。可以使用“|”符号替换。
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: va | vb
+ inst: vbisw/vlogfc
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_vornotw
+ desc: |
+  intv8类型的逻辑或非，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑与非运算。可以使用“|”和“~”符号替换。
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: va | ~vb
+ inst: vlogf3
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_vxorw
+ desc: |
+  intv8类型的逻辑异或，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑异或运算。可以使用“^”符号替换。
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: va ^ vb
+ inst: vxorw/vlog3c
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_veqvw
+ desc: |
+  intv8类型的逻辑等效，将va中的8个int类型的整型数据和vb中的8个int类型的整型数据或8位立即数b分别对应按位逻辑等效（同或），结果保存到返回值中。
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: ~(va ^ vb)
+ inst: veqvw/vlogc3
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_vsllw
+ desc: |
+  intv8类型的逻辑左移，将va中的8个int类型的整型数据进行逻辑左移，移出的空位用“0”补充，四个数移位的位数相同，由b中的最低5位或者立即数决定。可以使用“<<”符号替换。
+ params:
+ -
+  intv8 va:
+ -
+  int b: 
+ -
+  return intv8: va << b
+ op: |
+  for (i = 0; i < 8; i ++)
+    vc[i] = va[i] << b;
+  return vc;
+ inst: vsllw
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_vsrlw
+ desc: |
+  intv8类型的逻辑右移，将va中的8个int类型的整型数据进行逻辑右移，移出的空位用“0”补充，四个数移位的位数相同，由b中的最低5位或者5位立即数决定。可以使用“>>”符号替换。使用“>>”符号的时候，如果操作数是有符号的，生成vsraw指令，如果是无符号的，生成vsrlw指令。
+ params:
+ -
+  intv8 va:
+ -
+  int b: 
+ -
+  return intv8: va >>> b
+ op: |
+  for (i = 0; i < 8; i ++)
+    vc[i] = va[i] >>> b; //vc[i] = ((unsigned int)va[i]) >> b;
+  return vc;
+ inst: vsrlw
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_vsraw
+ desc: |
+  intv8类型的算术右移，将va中的8个int类型的整型数据进行逻辑右移，移出的空位用原符号位补充，四个数移位的位数相同，由b中的最低5位或者5位立即数决定。可以使用“>>”符号替换。使用“>>”符号的时候，如果操作数是有符号的，生成vsraw指令，如果是无符号的，生成vsrlw指令。
+ params:
+ -
+  intv8 va:
+ -
+  int b: 
+ -
+  return intv8: va >> b
+ op: |
+  for (i = 0; i < 8; i ++)
+    vc[i] = va[i] >> b;
+  return vc;
+ inst: vsraw
+ header: simd.h
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
