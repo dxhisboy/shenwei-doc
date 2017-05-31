@@ -1344,3 +1344,509 @@
  header: simd.h
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_vcmpeqw
+ inst: vcmpeqw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: va == vb
+ desc: |
+  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行等于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+ op: |
+  for (i = 0; i < 8; i ++)
+    if ((int)va[i] == (int)vb[i])
+      vc[i] = 1;
+    else
+      vc[i] = 0;
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-cmp, SIMD-int]
+-
+ name: simd_vcmplew
+ inst: vcmplew
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: a <= b
+ desc: |
+  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行小于等于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+ op: |
+  for (i = 0; i < 8; i ++)
+    if ((int)va[i] <= (int)vb[i])
+      vc[i] = 1;
+    else
+      vc[i] = 0;
+  return vc;
+-
+ name: simd_vcmpltw
+ inst: vcmpltw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: va < vb
+ desc: |
+  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行小于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+ op: |
+  for (i = 0; i < 8; i ++)
+    if ((int)va[i] < (int)vb[i])
+      vc[i] = 1;
+    else
+      vc[i] = 0;
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-cmp, SIMD-int]
+-
+ name: simd_vcmpulew
+ inst: vcmpulew
+ params:
+ -
+  uintv8 va:
+ -
+  uintv8 vb:
+ -
+  return uintv8: va <= vb
+ desc: |
+  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行无符号小于等于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+ op: |
+  for (i = 0; i < 8; i ++)
+    if ((unsigned int)va[i] <= (unsigned int)vb[i])
+      vc[i] = 1;
+    else
+      vc[i] = 0;
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-cmp, SIMD-int]
+-
+ name: simd_vcmpultw
+ inst: vcmpultw
+ params:
+ -
+  uintv8 va:
+ -
+  uintv8 vb:
+ -
+  return uintv8: va < vb
+ desc: |
+  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行无符号小于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+ op: |
+  for (i = 0; i < 8; i ++)
+    if ((unsigned int)va[i] <= (unsigned int)vb[i])
+      vc[i] = 1;
+    else
+      vc[i] = 0;
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-cmp, SIMD-int]
+-
+ name: simd_vrolw
+ inst: vrolw
+ params:
+ -
+  intv8 va:
+ -
+  int b:
+ return intv8: (va << b) | (va >>> 32 - b)
+ desc: |
+  intv8类型的循环左移，将va中的8个int类型的整型数据进行循环左移，移出的空位用移出位补充，四个数移位的位数相同，由b的低5位或5位立即数决定。
+ op: |
+  for (i = 0; i < 8; i ++)
+    vc[i] = (va[i] << b) | (va[i] >>> (32 - b));
+  return vc;
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_sllow
+ inst: sllow
+ params:
+ -
+  int256 va:
+ -
+  int b:
+ -
+  return int256: va << b
+ desc: |
+  将Va中256位整体左移，移出的空位用“0”填充，移位位数由b低8位或8位立即数确定，结果写入Vc中。
+ op: |
+  vc[0] = va[0] << b;
+  for (i = 1; i < 8; i ++)
+    vc[i] = (va[i] << b) | (va[i - 1] >>> (32 - b));
+  return vc;
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_srlow
+ inst: srlow
+ params:
+ -
+  int256 va:
+ -
+  int b:
+ -
+  return int256: va >> b
+ desc: |
+  将Va中256位整体右移，移出的空位用“0”填充，移位位数由b低8位或8位立即数确定，结果写入Vc中。
+ op: |
+  vc[7] = va[7] >> b;
+  for (i = 0; i < 7; i ++)
+    vc[i] = (va[i] >> b) | (va[i + 1] << (32 - b));
+  return vc;
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-logical, SIMD-int]
+-
+ name: simd_vaddl
+ inst: vaddl
+ params:
+ -
+  int256 va:
+ -
+  int256 vb:
+ -
+  return int256: va + vb
+ desc: |
+  将Va和Vb中4个64位长字（或8位立即数b）分别对应相加，结果保存到Vc中对应位置。
+ op: |
+  (by long[4])
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] + vb[i];
+  return vc;
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_vsubl
+ inst: vsubl
+ params:
+ -
+  int256 va:
+ -
+  int256 vb:
+ -
+  return int256 : va - vb
+ desc: |
+  将Va和Vb中4个64位长字（或8位立即数b）分别对应相减，结果保存到Vc中对应位置。
+ op: |
+  (by long[4])
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] - vb[i];
+  return vc;
+ tags: [CPE, MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_ctpopow
+ inst: ctpopow
+ params:
+ -
+  int256 va:
+ -
+  return int: sum(popcnt(va[i]))
+ desc: |
+  返回va中的256位八倍字整数中“1”的个数。
+ op: |
+  int cnt = 0;
+  for (i = 0; i < 8; i ++){
+    for (j = 0; j < 32; j ++)
+      if ((va[i] >> j) & 1)
+        cnt ++;
+  }
+  return cnt;
+ tags: [MPE]
+ cates: [SIMD, SIMD-misc, SIMD-int]
+-
+ name: simd_ctlzow
+ inst: ctlzow
+ params:
+ -
+  int256 va:
+ -
+  int vc
+ desc: |
+  返回Va中的256位八倍字整数从最高位起连续“0”的个数。
+ op: |
+  int cnt = 0;
+  for (i = 7; i >= 0; i --)
+    for (j = 31; j >= 0; j --)
+      if ((va[i] >> j) & 1)
+        cnt ++;
+      else
+        return cnt;
+  return cnt;
+ tags: [MPE]
+ cates: [SIMD, SIMD-misc, SIMD-int]
+-
+ name: simd_vucaddw
+ inst: vucaddw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: 假定va + vb的值被精确表示，max(min(va + vb, 2147483647), -2147483648)
+ desc: |
+  将Va和Vb中对应的8个32位字整数（或8位立即数#b零扩展的字整数）分别进行32位的有符号加，取低32位结果保存到Vc。若结果产生上溢，则将对应的32位结果置为0x7fff,ffff；若产生下溢，则将对应的32位结果置为0x8000,0000。
+ op: |
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)va[i] + (long)vb[i];
+    if (tmp > 0x000000007fffffffLL)
+      tmp = 0x000000007fffffff;
+    if (tmp < 0xffffffff80000000LL)
+      tmp = 0xffffffff80000000;
+    vc[i] = tmp;
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_vucsubw
+ inst: vucsubw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: 假定va - vb的值被精确表示，max(min(va - vb, 2147483647), -2147483648)
+ desc: |
+  将Va和Vb中对应的8个32位字整数（或8位立即数#b零扩展的字整数）分别进行32位的有符号减，取低32位结果保存到Vc。若结果产生上溢，则将对应的32位结果置为0x7fff,ffff；若产生下溢，则将对应的32位结果置为0x8000,0000。
+ op: | 
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)va[i] - (long)vb[i];
+    if (tmp > 0x000000007fffffffLL)
+      tmp = 0x000000007fffffff;
+    if (tmp < 0xffffffff80000000LL)
+      tmp = 0xffffffff80000000;
+    vc[i] = tmp;
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_vucaddh
+ inst: vucaddh
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: 假定va + vb的值被精确表示，max(min(va + vb, 65535), -65536)
+ desc: |
+  将Va和Vb中对应的16个16位半字整数（或8位立即数#b零扩展的半字整数）分别进行16位的有符号加，取低16位结果保存到Vc。若结果产生上溢，则将对应的16位结果置为0x7fff；若产生下溢，则将对应的16位结果置为0x8000。
+ op: |
+  (by short[16])
+  for (i = 0; i < 16; i ++){
+    int tmp = (int)va[i] + (int)vb[i];
+    if (tmp > 0x00007fff)
+      tmp = 0x00007fff;
+    if (tmp < 0xffff8000)
+      tmp = 0xffff8000;
+    vc[i] = tmp;
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_vucsubh
+ inst: vucsubh
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: 假定va - vb的值被精确表示，max(min(va - vb, 65535), -65536)
+ desc: |
+  将Va和Vb中对应的16个16位半字整数（或8位立即数#b零扩展的半字整数）分别进行16位的有符号减，取低16位结果保存到Vc。若结果产生上溢，则将对应的16位结果置为0x7fff；若产生下溢，则将对应的16位结果置为0x8000。
+ op: |
+  (by short[16])
+  for (i = 0; i < 16; i ++){
+    int tmp = (int)va[i] - (int)vb[i];
+    if (tmp > 0x00007fff)
+      tmp = 0x00007fff;
+    if (tmp < 0xffff8000)
+      tmp = 0xffff8000;
+    vc[i] = tmp;
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_vucaddb
+ inst: vucaddb
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: 假定va + vb的值被精确表示，max(min(va + vb, 255), -256)
+ desc: |
+  将Va和Vb中对应的32个8位字节整数（或8位立即数#b）分别进行8位的有符号加，取低8位结果保存到Vc。若结果产生上溢，则将对应的8位结果置为0x7f；若产生下溢，则将对应的8位结果置为0x80。
+ op: |
+  (by char[32])
+  for (i = 0; i < 32; i ++){
+    int tmp = (short)va[i] + (short)vb[i];
+    if (tmp > 0x007f)
+      tmp = 0x007f;
+    if (tmp < 0xff80)
+      tmp = 0xff80;
+    vc[i] = tmp;
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_vucsubb
+ inst: vucsubb
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8:  假定va - vb的值被精确表示，max(min(va - vb, 255), -256)
+ desc: |
+  将Va和Vb中对应的32个8位字节整数（或8位立即数#b）分别进行8位的有符号减，取低8位结果保存到Vc。若结果产生上溢，则将对应的8位结果置为0x7f；若产生下溢，则将对应的8位结果置为0x80。
+ op: |
+  (by char[32])
+  for (i = 0; i < 32; i ++){
+    int tmp = (int)va[i] - (int)vb[i];
+    if (tmp > 0x007f)
+      tmp = 0x007f;
+    if (tmp < 0xff80)
+      tmp = 0xff80;
+    vc[i] = tmp;
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-arith, SIMD-int]
+-
+ name: simd_vseleqw
+ inst: vseleqw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  intv8 vc:
+ -
+  return intv8: |
+   va == 0 ? vb : vc
+ desc: |
+  对Va中每个字元素与0进行等于比较测试，若条件成立，则将向量Vb对应的字元素写入Vd的对应位置，否则将向量Vc对应的字元素（或“0”扩展5位立即数#c形成的字整数）写入Vd的对应位置。
+ op: |
+  for (i = 0; i < 8; i ++){
+    vc[i] = va[i] == 0 ? vb[i] : vc[i];
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-cmp, SIMD-int]
+-
+ name: simd_vsellew
+ inst: vsellew
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  intv8 vc:
+ -
+  return intv8: |
+   va <= 0 ? vb : vc
+ desc: |
+  对Va中每个字元素与0进行小于等于比较测试，若条件成立，则将向量Vb对应的字元素写入Vd的对应位置，否则将向量Vc对应的字元素（或“0”扩展5位立即数#c形成的字整数）写入Vd的对应位置。
+ op: |
+  for (i = 0; i < 8; i ++){
+    vc[i] = va[i] <= 0 ? vb[i] : vc[i];
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-cmp, SIMD-int]
+-
+ name: simd_vselltw
+ inst: vselltw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  intv8 vc:
+ -
+  return intv8: |
+   va < 0 ? vb : vc
+ desc: |
+  对Va中每个字元素与0进行小于比较测试，若条件成立，则将向量Vb对应的字元素写入Vd的对应位置，否则将向量Vc对应的字元素（或“0”扩展5位立即数#c形成的字整数）写入Vd的对应位置。
+ op: |
+  for (i = 0; i < 8; i ++){
+    vc[i] = va[i] <= 0 ? vb[i] : vc[i];
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-cmp, SIMD-int]
+
+-
+ name: simd_vsellbcw
+ inst: vsellbcw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  intv8 vc:
+ -
+  return intv8: |
+   (va & 1) == 0 ? vb : vc
+ desc: |
+  对Va中每个字元素的低位进行测试，若为0，则将向量Vb对应的字元素写入Vd的对应位置，否则将向量Vc对应的字元素（或“0”扩展5位立即数#c形成的字整数）写入Vd的对应位置。
+ op: |
+  for (i = 0; i < 8; i ++){
+    vc[i] = (va[i] & 1) == 0 ? vb[i] : vc[i];
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-cmp, SIMD-int]
+-
+ name: simd_vlog
+ inst: vlogzz
+ params:
+ -
+  lit8 zz:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  intv8 vc:
+ -
+  return intv8: zz[(va << 2) + (vb << 1) + vc]
+ desc: |
+  将Va、Vb和Vc中对应的每一位，组成3位的二进制数，从两位16进制参数zz的8位二进制值中选出一位，写入Vd的对应位中。
+ op: |
+  int truth[8];
+  for (i = 0; i < 8; i ++)
+    truth[i] = (zz >> i) & 1;
+  for (i = 0; i < 8; i ++){
+    vc[i] = 0;
+    for (j = 0; j < 32; j ++){
+      a = (va[i] >> j) & 1;
+      b = (vb[i] >> j) & 1;
+      c = (vc[i] >> j) & 1;
+      vc[i] = truth[(a << 2) + (b << 1) + c];
+    }
+  }
+  return vc;
+ tags: [MPE]
+ cates: [SIMD, SIMD-logic, SIMD-int]
