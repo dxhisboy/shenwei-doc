@@ -1346,6 +1346,7 @@
  cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_vcmpeqw
+ header: simd.h
  inst: vcmpeqw
  params:
  -
@@ -1364,9 +1365,10 @@
       vc[i] = 0;
   return vc;
  tags: [MPE]
- cates: [SIMD, SIMD-cmp, SIMD-int]
+ cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vcmplew
+ header: simd.h
  inst: vcmplew
  params:
  -
@@ -1386,6 +1388,7 @@
   return vc;
 -
  name: simd_vcmpltw
+ header: simd.h
  inst: vcmpltw
  params:
  -
@@ -1404,9 +1407,10 @@
       vc[i] = 0;
   return vc;
  tags: [MPE]
- cates: [SIMD, SIMD-cmp, SIMD-int]
+ cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vcmpulew
+ header: simd.h
  inst: vcmpulew
  params:
  -
@@ -1425,9 +1429,10 @@
       vc[i] = 0;
   return vc;
  tags: [MPE]
- cates: [SIMD, SIMD-cmp, SIMD-int]
+ cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vcmpultw
+ header: simd.h
  inst: vcmpultw
  params:
  -
@@ -1446,9 +1451,10 @@
       vc[i] = 0;
   return vc;
  tags: [MPE]
- cates: [SIMD, SIMD-cmp, SIMD-int]
+ cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vrolw
+ header: simd.h
  inst: vrolw
  params:
  -
@@ -1466,6 +1472,7 @@
  cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_sllow
+ header: simd.h
  inst: sllow
  params:
  -
@@ -1485,6 +1492,7 @@
  cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_srlow
+ header: simd.h
  inst: srlow
  params:
  -
@@ -1504,6 +1512,7 @@
  cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_vaddl
+ header: simd.h
  inst: vaddl
  params:
  -
@@ -1523,6 +1532,7 @@
  cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vsubl
+ header: simd.h
  inst: vsubl
  params:
  -
@@ -1542,6 +1552,7 @@
  cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_ctpopow
+ header: simd.h
  inst: ctpopow
  params:
  -
@@ -1562,6 +1573,7 @@
  cates: [SIMD, SIMD-misc, SIMD-int]
 -
  name: simd_ctlzow
+ header: simd.h
  inst: ctlzow
  params:
  -
@@ -1583,6 +1595,7 @@
  cates: [SIMD, SIMD-misc, SIMD-int]
 -
  name: simd_vucaddw
+ header: simd.h
  inst: vucaddw
  params:
  -
@@ -1607,6 +1620,7 @@
  cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vucsubw
+ header: simd.h
  inst: vucsubw
  params:
  -
@@ -1631,6 +1645,7 @@
  cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vucaddh
+ header: simd.h
  inst: vucaddh
  params:
  -
@@ -1656,6 +1671,7 @@
  cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vucsubh
+ header: simd.h
  inst: vucsubh
  params:
  -
@@ -1681,6 +1697,7 @@
  cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vucaddb
+ header: simd.h
  inst: vucaddb
  params:
  -
@@ -1706,6 +1723,7 @@
  cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vucsubb
+ header: simd.h
  inst: vucsubb
  params:
  -
@@ -1731,6 +1749,7 @@
  cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vseleqw
+ header: simd.h
  inst: vseleqw
  params:
  -
@@ -1750,9 +1769,10 @@
   }
   return vc;
  tags: [MPE]
- cates: [SIMD, SIMD-cmp, SIMD-int]
+ cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vsellew
+ header: simd.h
  inst: vsellew
  params:
  -
@@ -1772,9 +1792,10 @@
   }
   return vc;
  tags: [MPE]
- cates: [SIMD, SIMD-cmp, SIMD-int]
+ cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vselltw
+ header: simd.h
  inst: vselltw
  params:
  -
@@ -1794,10 +1815,11 @@
   }
   return vc;
  tags: [MPE]
- cates: [SIMD, SIMD-cmp, SIMD-int]
+ cates: [SIMD, SIMD-arith, SIMD-int]
 
 -
  name: simd_vsellbcw
+ header: simd.h
  inst: vsellbcw
  params:
  -
@@ -1817,9 +1839,10 @@
   }
   return vc;
  tags: [MPE]
- cates: [SIMD, SIMD-cmp, SIMD-int]
+ cates: [SIMD, SIMD-arith, SIMD-int]
 -
  name: simd_vlog
+ header: simd.h
  inst: vlogzz
  params:
  -
@@ -1850,3 +1873,772 @@
   return vc;
  tags: [MPE]
  cates: [SIMD, SIMD-logic, SIMD-int]
+-
+ name: simd_vaddd
+ inst: vaddd
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: va + vb
+ desc: |
+  doublev4类型的加法运算，将va中的4个double浮点数分别与vb中的4个double浮点数进行加法运算。可以用“+”符号替换。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] + vb[i];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vadds
+ inst: vadds
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: va + vb
+ desc: |
+  floatv4类型的加法运算，将va中的4个float浮点数分别与vb中的4个float浮点数进行加法运算。可以用“+”符号替换。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] + vb[i];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vsubd
+ inst: vsubd
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: va - vb
+ desc: |
+  doublev4类型的减法运算，将va中的4个double浮点数分别与vb中的4个double浮点数进行减法运算。可以用“-”符号替换。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] - vb[i];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vsubs
+ inst: vsubs
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: va - vb
+ desc: |
+  floatv4类型的减法运算，将va中的4个float浮点数分别与vb中的4个float浮点数进行减法运算。可以用“-”符号替换。
+ op: |
+  for (i = 0; i < 4; i ++)
+   vc[i] = va[i] - vb[i];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vmuld
+ inst: vmuld
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: va * vb
+ desc: |
+  doublev4类型的乘法运算，将va中的4个double浮点数分别与vb中的4个double浮点数进行乘法运算。可以用“*”符号替换。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] * vb[i];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vmuls
+ inst: vmuls
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: va * vb
+ desc: |
+  floatv4类型的乘法运算，将va中的4个float浮点数分别与vb中的4个float浮点数进行乘法运算。可以用“*”符号替换。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] * vb[i];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vmad
+ inst: vmad
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  doublev4 vc:
+ -
+  return doublev4: va * vb + vc
+ desc: |
+  doublev4类型的乘加运算，将va中的4个double浮点数和vb中的4个double浮点数以及vc中的4个浮点数分别进行乘加运算。可以用“*”和“+”符号替换。
+  ret = va*vb + vc;
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] * vb[i] + vc[i];
+  return vd;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vmas
+ inst: vmas
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  floatv4 vc:
+ -
+  return floatv4:
+ desc: |
+  floatv4类型的乘加运算，将va中的4个float浮点数和vb中的4个float浮点数以及vc中的4个浮点数分别进行乘加运算。可以用“*”和“+”符号替换。
+  ret = va*vb + vc;
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] * vb[i] + vc[i];
+  return vd;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vmsd
+ inst: vfmsd
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  doublev4 vc:
+ -
+  return doublev4: va * vb - vc
+ desc: |
+  doublev4类型的乘减运算，将va中的4个double浮点数和vb中的4个double浮点数以及vc中的4个浮点数分别进行乘减运算。可以用“*”和“-”符号替换。
+  ret=va*vb-vc；
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] * vb[i] - vc[i];
+  return vd;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vmss
+ inst: vmss
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  floatv4 vc:
+ -
+  return floatv4: va * vb - vc
+ desc: |
+  floatv4类型的乘减运算，将va中的4个浮点数和vb中的4个浮点数以及vc中的4个浮点数分别进行乘减运算。可以用“*”和“-”符号替换。
+  ret=va*vb-vc;
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] * vb[i] - vc[i];
+  return vd;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vnmad
+ inst: vnmad
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  doublev4 vc:
+ -
+  return doublev4: -va * vb + vc
+ desc: |
+  doublev4类型的负乘加运算，将va中的4个double浮点数和vb中的4个double浮点数以及vc中的4个浮点数分别进行负乘加运算。可以用“*”和“+”和“-”符号替换。
+  ret = -va*vb + vc；
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = -va[i] * vb[i] + vc[i];
+  return vd;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vnmas
+ inst: vnmas
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  floatv4 vc:
+ -
+  return floatv4: -va * vb +vc
+ desc: |
+  floatv4类型的负乘加运算，将va中的4个float浮点数和vb中的4个float浮点数以及vc中的4个浮点数分别进行负乘加运算。可以用“*”和“+”和“-”符号替换。
+  ret = -va*vb + vc；
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = -va[i] * vb[i] + vc[i];
+  return vd;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vnmsd
+ inst: vnmsd
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  doublev4 vc:
+ -
+  return doublev4: -va * vb - vc
+ desc: |
+  doublev4类型的负乘减运算，将va中的4个double浮点数和vb中的4个double浮点数以及vc中的4个浮点数分别进行负乘减运算。可以用“*”和“+”和“-”符号替换。
+  ret = -va*vb - vc；
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = -va[i] * vb[i] - vc[i];
+  return vd;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vnmss
+ inst: vnmss
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  floatv4 vc:
+ -
+  return floatv4:
+ desc: |
+  floatv4类型的负乘减运算，将va中的4个float浮点数和vb中的4个float浮点数以及vc中的4个浮点数分别进行负乘减运算。可以用“*”和“+”和“-”符号替换。
+  ret = -va*vb - vc；
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = -va[i] * vb[i] - vc[i];
+  return vd;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vseleq
+ inst: vseleq
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  doublev4 vc:
+ -
+  return doublev4: |
+   va == 0 ? vb : vc
+ desc: |
+  判断doublev4/floatv4类型的参数va，如果等于0，则返回vb的值；否则返回vc的值。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] == 0 ? vb[i] : vc[i];
+  return vd;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vseleq
+ inst: vseleq
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  floatv4 vc:
+ -
+  return floatv4: |
+   va == 0 ? vb : vc
+ desc: |
+  判断doublev4/floatv4类型的参数va，如果等于0，则返回vb的值；否则返回vc的值。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] == 0 ? vb[i] : vc[i];
+  return vd;  
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vsellt
+ inst: vsellt
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  doublev4 vc:
+ -
+  return doublev4: |
+   va < 0 ? vb : vc
+ desc: |
+  判断doublev4/floatv4类型的参数va，如果小于0，则返回vb的值；否则返回vc的值。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] < 0 ? vb[i] : vc[i];
+  return vd;  
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vsellt
+ inst: vsellt
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  floatv4 vc:
+ -
+  return floatv4: |
+   va < 0 ? vb : vc
+ desc: |
+  判断doublev4/floatv4类型的参数va，如果小于0，则返回vb的值；否则返回vc的值。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] < 0 ? vb[i] : vc[i];
+  return vd;  
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vselle
+ inst: vselle
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  doublev4 vc:
+ -
+  return doublev4: |
+   va <= 0 ? vb : vc
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] <= 0 ? vb[i] : vc[i];
+  return vd;
+ desc: |
+  判断doublev4/floatv4类型的参数va，如果小于等于0，则返回vb的值；否则返回vc的值。
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vselle
+ inst: vselle
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  floatv4 vc:
+ -
+  return floatv4: |
+   va <= 0 ? vb : vc
+ desc: |
+  判断doublev4/floatv4类型的参数va，如果小于等于0，则返回vb的值；否则返回vc的值。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vd[i] = va[i] <= 0 ? vb[i] : vc[i];
+  return vd;  
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vcpys
+ inst: vcpys
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: |
+   (va & 8000 0000) | (vb & 0x7fff ffff)
+ desc: |
+  浮点拷贝符号，返回值中的符号位是va的符号位，其余部分为vb中的数据。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = (va[i] & 80000000) | (vb[i] & 0x7fffffff);
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vcpys
+ inst: vcpys
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: |
+   (va & 8000 0000 0000 0000) | (vb & 0x7fff ffff ffff ffff)
+ desc: |
+  浮点拷贝符号，返回值中的符号位是va的符号位，其余部分为vb中的数据。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = (va[i] & 8000000000000000LL) | (vb[i] & 0x7fffffffffffffffLL)
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vcpyse
+ inst: vcpyse
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: (va & 0xff80 0000) | (vb & 0x007f ffff)
+ desc: |
+  浮点拷贝符号和指数，返回值中的符号位和指数位是va的数据，其余部分为vb中的数据。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = (va[i] & 0xff800000) | (vb[i] & 0x007fffff);
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vcpyse
+ inst: vcpyse
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: |
+   (va & 0xfff0 0000 0000 0000) | (vb & 0x000f ffff ffff ffff)
+ desc: |
+  浮点拷贝符号和指数，返回值中的符号位和指数位是va的数据，其余部分为vb中的数据。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = (va[i] & 0xfff0000000000000LL) | (vb[i] & 0x000fffffffffffffLL)
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vcpysn
+ inst: vcpysn
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: |
+   ((~va) & 0x8000 0000) | (vb & 0x7fff ffff)
+ desc: |
+  浮点拷贝符号反码，返回值中的符号位是va的符号位的反码，其余部分为vb中的数据。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = ((~va) & 0x80000000) | (vb &0x7fffffff)
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vcpysn
+ inst: vcpysn
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: |
+   ((~va) & 0x8000 0000 0000 0000) | (vb & 0x7fff ffff ffff ffff)
+ desc: |
+  浮点拷贝符号反码，返回值中的符号位是va的符号位的反码，其余部分为vb中的数据。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = ((~va[i]) & 0x8000000000000000LL) | (vb[i] & 0x7fffffffffffffffLL)
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vdivd
+ inst: vdivd
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: va / vb
+ desc: |
+  doublev4类型的除法运算，将va中的4个double浮点数分别与vb中的4个double浮点数进行除法运算。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] / vb[i];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vdivs
+ inst: vdivs
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: va / vb
+ desc: |
+  floatv4类型的乘法运算，将va中的4个float浮点数分别与vb中的4个float浮点数进行除法运算。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] / vb[i];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vsqrtd
+ inst: vsqrtd
+ params:
+ -
+  doublev4 va:
+ -
+  return doublev4: sqrt(va)
+ desc: |
+  doublev4类型的求平方根运算，将va中的4个double浮点数分别求平方根。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vb[i] = sqrt(va[i]);
+  return vb;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vsqrts
+ inst: vsqrts
+ params:
+ -
+  floatv4 va:
+ -
+  return floatv4: sqrt(va)
+ desc: |
+  floatv4类型的求平方根运算，将va中的4个float浮点数分别求平方根。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vb[i] = sqrt(va[i]);
+  return vb;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vfcmpeq
+ inst: vfcmpeq
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: |
+   va == vb ? 2.0 : 0
+ desc: |
+  将Va和Vb中的对应浮点向量元素进行等于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] == vb[i] ? 2.0 : 0;
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vfcmpeq
+ inst: vfcmpeq
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: |
+   va == vb ? 2.0 : 0
+ desc: |
+  将Va和Vb中的对应浮点向量元素进行等于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] == vb[i] ? 2.0 : 0;
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vfcmple
+ inst: vfcmple
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: |
+   va <= vb ? 2.0 : 0
+ desc: |
+  将Va和Vb中的对应浮点向量元素进行小于等于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] <= vb[i] ? 2.0 : 0;
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vfcmple
+ inst: vfcmple
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: |
+   va <= vb ? 2.0 : 0
+ desc: |
+  将Va和Vb中的对应浮点向量元素进行小于等于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vfcmplt
+ inst: vfcmplt
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: |
+   va < vb ? 2.0 : 0
+ desc: |
+  将Va和Vb中的对应浮点向量元素进行小于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] < vb[i] ? 2.0 : 0;
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vfcmplt
+ inst: vfcmplt
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: |
+   va < vb ? 2.0 : 0
+ desc: |
+  将Va和Vb中的对应浮点向量元素进行小于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = va[i] < vb[i] ? 2.0 : 0;
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vfcmpun
+ inst: vfcmpun
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: |
+   isnan(va) || isnan(vb) ? 2.0 : 0
+ desc: |
+  将Va和Vb中的对应浮点向量元素进行无序比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = isnan(va[i]) || isnan(vb[i]) ? 2.0 : 0;
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-dp]
+-
+ name: simd_vfcmpun
+ inst: vfcmpun
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: |
+   isnan(va) || isnan(vb) ? 2.0 : 0;
+ desc: |
+  将Va和Vb中的对应浮点向量元素进行无序比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = isnan(va[i]) || isnan(vb[i]) ? 2.0 : 0;
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-arith, SIMD-sp]
