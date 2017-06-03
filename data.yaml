@@ -1846,7 +1846,7 @@
  inst: vlogzz
  params:
  -
-  lit8 zz:
+  int zz: 真值表，需为立即数
  -
   intv8 va:
  -
@@ -3197,3 +3197,836 @@
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
+-
+ name: simd_vlog2x
+ inst: vlog2x
+ params:
+ -
+  int n: 真值表
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: n[(va << 1) + vb]
+ desc: |
+  两个intv8类型操作数的可重构逻辑运算，按照n的逻辑真值，将va中的8个int类型的整型数据与vb中的8个int类型的整型数据进行逻辑运算。
+  此功能存在编译器级别bug，但是可以通过嵌入汇编的方式实现。
+ eg: |
+  #define simd_vlog2x_patch(r, n, a, b) asm("vlog2x"n"idx %2, %1, %0" : "=r"(r) : "r"(b), "r"(a))
+  simd_vlog2x_patch(r, "e", a, b) <==> vlog2xe a, b, r <==> r = a | b
+ op: |
+  int truth[4];
+  for (i = 0; i < 4; i ++)
+    truth[i] = (n >> i) & 1;
+  for (i = 0; i < 8; i ++){
+    vc[i] = 0;
+    for (j = 0; j < 32; j ++){
+      a = (va[i] >> j) & 1;
+      b = (vb[i] >> j) & 1;
+      vc[i] = truth[(a << 1) + b];
+    }
+  }
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-logical, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_vlog3x
+ inst: vlog3r
+ params:
+ -
+  int n:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  intv8 vc:
+ -
+  return intv8: truth_reg[n][(va << 2) + (vb << 1) + vc]
+ desc: |
+  三个intv8类型操作数的可重构逻辑运算，以n号真值表寄存器的逻辑真值，将va、vb、vc中的8个int类型的整型数据进行逻辑运算。
+  此功能存在编译器级别bug，但是可以通过嵌入汇编的方式实现。
+ eg: |
+  #define vlog3r_setr(idx, truth) asm volatile("wcsr %1, %0" :  : "i"(0x80 + idx), "r"(truth))
+  #define simd_vlog3r(r, idx, a, b, c) asm("vlog3r"idx" %3, %2, %1, %0" : "=r"(r) : "r"(c), "r"(b), "r"(a))
+  vlog3r_setr(0x1, 0xfe) //将一号真值表寄存器设为0xfe
+  simd_vlog3r(r, "1", a, b, c) <==> r = a | b | c
+ op: |
+  //truth_reg是从核上的真值表寄存器列表
+  int zz = truth_reg[n];
+  int truth[8];
+  for (i = 0; i < 8; i ++)
+    truth[i] = (zz >> i) & 1;
+  for (i = 0; i < 8; i ++){
+    vc[i] = 0;
+    for (j = 0; j < 32; j ++){
+      a = (va[i] >> j) & 1;
+      b = (vb[i] >> j) & 1;
+      c = (vc[i] >> j) & 1;
+      vc[i] = truth[(a << 2) + (b << 1) + c];
+    }
+  }
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-logical, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_uaddo_carry
+ inst: uaddo_carry
+ params:
+ -
+  uint256 va:
+ -
+  uint256 vb:
+ -
+  return uint256: va + vb
+ desc: |
+  无符号256位整数Va与Vb（或8位无符号立即数#b）相加，和的低256位送到返回值中。如果发生进位，CA做加1操作。
+  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+ op: |
+  //CA是进位寄存器
+  int CC = 0;
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
+    if (tmp > MAX_UINT)
+      CC = 1;
+    vc[i] = tmp;
+  }
+  CA += CC;
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-arith, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_usubo_carry
+ inst: usubo_carry
+ params:
+ -
+  uint256 va:
+ -
+  uint256 vb:
+ -
+  return uint256: va - vb
+ desc: |
+  无符号256位整数Va与Vb（或8位无符号立即数#b）相减，差的低256位送到Vc中。如果发生借位，CA做减1操作。
+  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+ op: |
+  //CA是进位寄存器
+  int CC = 0;
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)(unsigned int)va[i] - (long)(unsigned int)vb[i] + CC;
+    if (tmp < 0)
+      CC = -1;
+    vc[i] = tmp;
+  }
+  CA += CC;
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-arith, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_uaddo_take_carry
+ inst: uaddo_take_carry
+ params:
+ -
+  uint256 va:
+ -
+  uint256 vb:
+ -
+  return uint256: va + vb
+ desc: |
+  无符号256位整数Va、Vb（或8位无符号立即数#b）相加，然后再加上CA中保存的有符号数，结果的低256位送到Vc中。如果发生进位，CA设置为进位值（可能为+1或+2）；如果发生借位，CA设置为-1；否则CA清0。
+  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+ op: |
+  //CA是进位寄存器
+  int CC = CA;
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
+    if (tmp > MAX_UINT)
+      CC = 1;
+    vc[i] = tmp;
+  }
+  CA = CC;
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-arith, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_usubo_take_carry
+ inst: usubo_take_carry
+ params:
+ -
+  uint256 va:
+ -
+  uint256 vb:
+ -
+  return uint256: va - vb
+ desc: |
+  无符号256位整数Va、Vb（或8位无符号立即数#b）相减，然后再加上CA中保存的有符号数，结果的低256位送到Vc中。如果发生进位，CA设置为+1；如果发生借位，CA设置为借位值（可能为-1或-2）；否则CA清0。
+ op: |
+  //CA是进位寄存器
+  int CC = CA;
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)(unsigned int)va[i] - (long)(unsigned int)vb[i] + CC;
+    if (tmp < 0)
+      CC = -1;
+    vc[i] = tmp;
+  }
+  CA = CC;
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-arith, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_addo_carry
+ inst: addo_carry
+ params:
+ -
+  int256 va:
+ -
+  int256 vb:
+ -
+  return int256: va + vb
+ desc: |
+  有符号256位整数Va与Vb（或8位无符号立即数#b）相加，和的低256位送到Vc中。如果发生进位，CA做加1操作；如果发生借位，CA做减1操作。发生进借位时，调整结果为-2^255到+2^255-1之间的合法有符号256位整数。
+  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+ op: |
+  //CA是进位寄存器
+  int CC = 0;
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
+    if (tmp > MAX_UINT)
+      CC = 1;
+    vc[i] = tmp;
+  }
+  CA += CC;
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-arith, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_subo_carry
+ inst: subo_carry
+ params:
+ -
+  int256 va:
+ -
+  int256 vb:
+ -
+  return int256: va - vb
+ desc: |
+  有符号256位整数Va与Vb（或8位无符号立即数#b）相减，差的低256位送到Vc中。如果发生进位，CA做加1操作；如果发生借位，CA做减1操作。发生进借位时，调整结果为-2^255到+2^255-1之间的合法有符号256位整数。
+  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+ op: |
+  //CA是进位寄存器
+  int CC = 0;
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)(unsigned int)va[i] - (long)(unsigned int)vb[i] + CC;
+    if (tmp < 0)
+      CC = -1;
+    vc[i] = tmp;
+  }
+  CA += CC;
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-arith, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_addo_take_carry
+ inst: addo_take_carry
+ params:
+ -
+  int256 va:
+ -
+  int256 vb:
+ -
+  return int256: va + vb
+ desc: |
+  有符号256位整数Va与Vb（或8位无符号立即数#b）与CA三者相加，结果的低256位送到Vc中。如果发生进位，CA设置为进位值（可能为+1或+2）；如果发生借位，CA设置为借位值（可能为-1或-2）；否则CA清0。发生进借位时，调整结果为-2^255到+2^255-1之间的合法有符号256位整数。
+  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+ op: |
+  //CA是进位寄存器
+  int CC = CA;
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
+    if (tmp > MAX_UINT)
+      CC = 1;
+    vc[i] = tmp;
+  }
+  CA = CC;
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-arith, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_subo_take_carry
+ inst: subo_take_carry
+ params:
+ -
+  int256 va:
+ -
+  int256 vb:
+ -
+  return int256: va + vb
+ desc: |
+  有符号256位整数Va与Vb（或8位无符号立即数#b）相减，然后再加上CA中保存的有符号数，结果的低256位送到Vc中。如果发生进位，CA设置为进位值（可能为+1或+2）；如果发生借位，CA设置为借位值（可能为-1或-2）；否则CA清0。发生进借位时，调整结果为-2^255到+2^255-1之间的合法有符号256位整数。
+  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+ op: |
+  //CA是进位寄存器
+  int CC = CA;
+  for (i = 0; i < 8; i ++){
+    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
+    if (tmp > MAX_UINT)
+      CC = 1;
+    vc[i] = tmp;
+  }
+  CA = CC;
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-arith, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_umulqa
+ inst: umulqa
+ params:
+ -
+  uint256 va:
+ -
+  uint256 vb:
+ -
+  return uint256: va * vb
+ desc: |
+  向量寄存器Va的低128位和Vb的低128位（或8位无符号立即数#b）作为无符号整数进行乘法操作，得到的256位无符号数结果写入目标寄存器Vc。Va、Vb的高128位忽略。 
+ op: |
+  long prod[8];
+  for (i = 0; i < 8; i ++)
+    prod[i] = 0;
+  for (i = 0; i < 4; i ++)
+    for (j = 0; j < 4; j ++)
+      prod[i + j] += (long)(unsigned int)va[i] * (long)(unsigned int)vb[i];
+  for (i = 0; i < 8; i ++){
+    prod[i + 1] += prod[i] / (MAX_UINT + 1);
+    prod[i] %= (MAX_UINT + 1);
+  }
+  return (uint256)simd_set_intv8(prod[0], prod[1], prod[2], prod[3]
+                               , prod[4], prod[5], prod[6], prod[7]);
+ header: "simd.h"
+ cates: [SIMD, SIMD-arith, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_vshff
+ inst: vshfw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  int Rc:
+ -
+  return intv8:
+ desc: |
+  返回值的八个32bit的数由Va和Vb装填，Va负责装填4个高32bit，Vb负责装填4个低32bit，具体如何装填由Rc说明：
+  Rc的<30:28>指出vd的<255:224>来自Va的位置
+  Rc的<26:24>指出vd的<223:192>来自Va的位置
+  Rc的<22:20>指出vd的<191:160>来自Va的位置
+  Rc的<18:16>指出vd的<159:128>来自Va的位置
+  Rc的<14:12>指出vd的<127:96>来自Vb的位置
+  Rc的<10:8>指出vd的<95:64>来自Vb的位置
+  Rc的<6:4>指出vd的<63:32>来自Vb的位置
+  Rc的<2:0>指出vd的<31:0>来自Vb的位置
+  Va/Vb的位置（0~7）含义为，Va/Vb分成自然对界的8个32bit，位置为0表示第0个32bit（[31:0]），依次类推。
+ eg: |
+  intv8 va,vb,vd;
+  int rc = 0x12345670;
+  vd = vshuffle（va, vb, rc）。
+  含义是从高到低，vd的8个32bit分别来源于：
+  0x1：va的第1个32bit；
+  0x2：va的第2个32bit；
+  0x3：va的第3个32bit；
+  0x4：va的第4个32bit；
+  0x5：vb的第5个32bit；
+  0x6：vb的第6个32bit；
+  0x7：vb的第7个32bit；
+  0x0：vb的第0个32bit。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = vb[(rc >> (i * 4))];
+  for (i = 4; i < 8; i ++)
+    vc[i] = va[(rc >> (i * 4))];
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-misc, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_vshff
+ inst: vshfw
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  int Rc:
+ -
+  return doublev4: 
+ desc: |
+  返回值的四个64bit的数由Va和Vb装填，Va负责装填Vd的2个高64bit，Vb负责装填Vd的2个低64bit，具体如何装填由Rc/#c说明：
+  Rc/#c的<7:6>指出vd的<255:192>来自Va的位置
+  Rc/#c的<5:4>指出vd的<191:128>来自Va的位置
+  Rc/#c的<3:2>指出vd的<127:64>来自Vb的位置
+  Rc/#c的<1:0>指出vd的<63:0>来自Vb的位置
+  Va/Vb的位置（0~3）含义为，Va/Vb分成自然对界的4个64bit，位置为0表示第0个64bit（[63:0]），依次类推。
+  示例：以立即数操作数为例说明
+  doublev4 va,vb,vd;
+  vd = simd_shuffle(va, vb, 8’b01111000)
+  含义是从高到低，vd的4个64bit分别来源于va的第1个64比特，va的第3个64bit，vb的第2个64bit，vb的第0个64bit。
+ op: |
+  for (i = 0; i < 2; i ++)
+    vc[i] = vb[(rc >> (i * 2))];
+  for (i = 2; i < 4; i ++)
+    vc[i] = va[(rc >> (i * 2))];
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-misc, SIMD-dp]
+ tags: [CPE]
+-
+ name: simd_vshff
+ inst: vshfw
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  int rc:
+ -
+  return floatv4:
+ desc: |
+  返回值的四个64bit的数由Va和Vb装填，Va负责装填Vd的2个高64bit，Vb负责装填Vd的2个低64bit，具体如何装填由Rc/#c说明：
+  Rc/#c的<7:6>指出vd的<255:192>来自Va的位置
+  Rc/#c的<5:4>指出vd的<191:128>来自Va的位置
+  Rc/#c的<3:2>指出vd的<127:64>来自Vb的位置
+  Rc/#c的<1:0>指出vd的<63:0>来自Vb的位置
+  Va/Vb的位置（0~3）含义为，Va/Vb分成自然对界的4个64bit，位置为0表示第0个64bit（[63:0]），依次类推。
+  示例：以立即数操作数为例说明
+  doublev4 va,vb,vd;
+  vd = simd_shuffle(va, vb, 8’b01111000)
+  含义是从高到低，vd的4个64bit分别来源于va的第1个64比特，va的第3个64bit，vb的第2个64bit，vb的第0个64bit。
+ op: |
+  for (i = 0; i < 2; i ++)
+    vc[i] = vb[(rc >> (i * 2))];
+  for (i = 2; i < 4; i ++)
+    vc[i] = va[(rc >> (i * 2))];
+  return vc;
+ header: "simd.h"
+ cates: [SIMD, SIMD-misc, SIMD-sp]
+ tags: [CPE]
+-
+ name: simd_loadr
+ inst: vldr
+ params:
+ -
+  intv8 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行行广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_loadr
+ inst: vldr
+ params:
+ -
+  int256 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行行广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_loadr
+ inst: vldr
+ params:
+ -
+  doublev4 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行行广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-dp]
+ tags: [CPE]
+-
+ name: simd_loadc
+ inst: vldc
+ params:
+ -
+  intv8 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行列广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_loadc
+ inst: vldc
+ params:
+ -
+  int256 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行列广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_loadc
+ inst: vldc
+ params:
+ -
+  doublev4 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行列广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-dp]
+ tags: [CPE]
+-
+ name: simd_loader
+ inst: ldder
+ params:
+ -
+  intv8 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行行向广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_loader
+ inst: ldder
+ params:
+ -
+  int256 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行行向广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_loader
+ inst: ldder
+ params:
+ -
+  doublev4 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行行向广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-dp]
+ tags: [CPE]
+-
+ name: simd_loadec
+ inst: lddec
+ params:
+ -
+  intv8 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行列向广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_loadec
+ inst: lddec
+ params:
+ -
+  int256 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行列向广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-octa-word]
+ tags: [CPE]
+-
+ name: simd_loadec
+ inst: lddec
+ params:
+ -
+  doublev4 va: 装入结果
+ -
+  void *addr: 内存地址
+ desc: |
+  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行列向广播。
+ header: "simd.h"
+ cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-dp]
+ tags: [CPE]
+-
+ name: simd_getr
+ inst: getr
+ params:
+ -
+  intv8 va: 装入结果
+ -
+  return intv8:
+ desc: |
+  读行通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_getr
+ inst: getr
+ params:
+ -
+  int256 va: 装入结果
+ -
+  return int256:
+ desc: |
+  读行通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_getr
+ inst: getr
+ params:
+ -
+  doublev4 va: 装入结果
+ -
+  return doublev4:
+ desc: |
+  读行通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-dp]
+ tags: [CPE]
+-
+ name: simd_getr
+ inst: getr
+ params:
+ -
+  floatv4 va: 装入结果
+ -
+  return floatv4:
+ desc: |
+  读行通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-sp]
+ tags: [CPE]
+-
+ name: simd_getc
+ inst: getc
+ params:
+ -
+  intv8 va: 装入结果
+ -
+  return intv8:
+ desc: |
+  读列通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_getc
+ inst: getc
+ params:
+ -
+  int256 va: 装入结果
+ -
+  return int256:
+ desc: |
+  读列通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_getc
+ inst: getc
+ params:
+ -
+  doublev4 va: 装入结果
+ -
+  return doublev4:
+ desc: |
+  读列通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-dp]
+ tags: [CPE]
+-
+ name: simd_getc
+ inst: getc
+ params:
+ -
+  floatv4 va: 装入结果
+ -
+  return floatv4:
+ desc: |
+  读列通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-sp]
+ tags: [CPE]
+-
+ name: simd_putr
+ inst: putr
+ params:
+ -
+  intv8 va: 要发送的向量
+ -
+  int dest: 目标从核（8为广播）
+ desc: |
+  向同行上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_putr
+ inst: putr
+ params:
+ -
+  int256 va: 要发送的向量
+ -
+  int dest: 目标从核（8为广播）
+ desc: |
+  向同行上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_putr
+ inst: putr
+ params:
+ -
+  doublev4 va: 要发送的向量
+ -
+  int dest: 目标从核（8为广播）
+ desc: |
+  向同行上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-dp]
+ tags: [CPE]
+-
+ name: simd_putr
+ inst: putr
+ params:
+ -
+  floatv4 va: 要发送的向量
+ -
+  int dest: 目标从核（8为广播）
+ desc: |
+  向同行上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-sp]
+ tags: [CPE]
+-
+ name: simd_putc
+ inst: putc
+ params:
+ -
+  intv8 va: 要发送的向量
+ -
+  int dest: 目标从核（8为广播）
+ desc: |
+  向同列上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_putc
+ inst: putc
+ params:
+ -
+  int256 va: 要发送的向量
+ -
+  int dest: 目标从核（8为广播）
+ desc: |
+  向同列上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_putc
+ inst: putc
+ params:
+ -
+  doublev4 va: 要发送的向量
+ -
+  int dest: 目标从核（8为广播）
+ desc: |
+  向同列上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-dp]
+ tags: [CPE]
+-
+ name: simd_putc
+ inst: putc
+ params:
+ -
+  floatv4 va: 要发送的向量
+ -
+  int dest: 目标从核（8为广播）
+ desc: |
+  向同列上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+ header: "simd.h"
+ cates: [SIMD, SIMD-regcomm, SIMD-sp]
+ tags: [CPE]
+-
+ name: simd_selldw
+ inst: selldw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 Rb:
+ -
+  int c:
+ -
+  return intv8:
+ desc: |
+  根据#c，从Va指出的8个表内偏移中选择1个，与Rb中的首地址相加，得到访问LDM的地址；然后访问LDM，将查到的32bit数据写入硬件256b缓冲相应位置。如果#c为3’b0，访问LDM结束后会把硬件256b缓冲的结果写回Vd。
+ header: "simd.h"
+ cates: [SIMD, SIMD-misc, SIMD-int]
+ tags: [CPE]
+-
+ name: simd_lookup
+ inst: selldw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 Rb:
+ -
+  intv8 vc:
+ -
+  return intv8:
+ desc: |
+  生成8条查表指令：
+  simd_selldw (va,b,7);
+  simd_selldw (va,b,6);
+  simd_selldw (va,b,5);
+  simd_selldw (va,b,4);
+  simd_selldw (va,b,3);
+  simd_selldw (va,b,2);
+  simd_selldw (va,b,1);
+  vc=simd_selldw (va,b,0);
+ header: "simd.h"
+ cates: [SIMD, SIMD-misc, SIMD-int]
+ tags: [CPE]
