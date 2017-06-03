@@ -1579,7 +1579,7 @@
  -
   int256 va:
  -
-  int vc
+  return int:
  desc: |
   返回Va中的256位八倍字整数从最高位起连续“0”的个数。
  op: |
@@ -1872,7 +1872,7 @@
   }
   return vc;
  tags: [MPE]
- cates: [SIMD, SIMD-logic, SIMD-int]
+ cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_vaddd
  inst: vaddd
@@ -2642,3 +2642,558 @@
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-arith, SIMD-sp]
+-
+ name: simd_vinswn
+ inst: vinsw
+ params:
+ -
+  intv8 va:
+ -
+  intv8 vb:
+ -
+  return intv8: |
+   vb[0 : n]va[0]vb[n + 1 : 8]
+ desc: |
+  将浮点寄存器va低64位的寄存器格式字整数转换为32位字整数，替代vb中由n（有效值为0～7）指定32位字元素，组成并返回新的字整数向量。
+  该接口实际上对应8个接口，分别是simd_vinsw0、simd_vinsw1、simd_vinsw2、simd_vinsw3、simd_vinsw4、simd_vinsw5、simd_vinsw6、simd_vinsw7，比如：
+  vc=simd_vinsw2
+  表示va低64位的寄存器格式字整数先转换为32位字整数，然后替代vb的64：95这32位的字元素，组成新的vb返回给vc。
+ op: |
+  for (i = 0; i < 8; i ++)
+    vc[i] = vb[i];
+  vc[n] = va[n];
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-int]
+-
+ name: simd_vinsfn
+ inst: vinsf
+ params:
+ -
+  doublev4 va:
+ -
+  doublev4 vb:
+ -
+  return doublev4: |
+   vb[0 : n]va[0]vb[n + 1 : 8]
+ desc: |
+  将浮点寄存器va低64位浮点数据替代vb中由n（有效值为0～3）指定的64位浮点元素，组成并返回新的浮点向量。
+  该接口实际上对应4个接口，分别是simd_vinsf0、simd_vinsf1、simd_vinsf2、simd_vinsf3，比如：
+  vc=simd_vinsf1(va,vb)
+  表示va低64位浮点数据替代vb的64：127这64位的浮点元素，组成新的vb返回给vc。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = vb[i];
+  vc[n] = va[n];
+
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-dp]
+-
+ name: simd_vinsfn
+ inst: vinsf
+ params:
+ -
+  floatv4 va:
+ -
+  floatv4 vb:
+ -
+  return floatv4: |
+   vb[0 : n]va[0]vb[n + 1 : 8]
+ desc: |
+  将浮点寄存器va低64位浮点数据替代vb中由n（有效值为0～3）指定的64位浮点元素，组成并返回新的浮点向量。
+  该接口实际上对应4个接口，分别是simd_vinsf0、simd_vinsf1、simd_vinsf2、simd_vinsf3，比如：
+  vc=simd_vinsf1(va,vb)
+  表示va低64位浮点数据替代vb的64：127这64位的浮点元素，组成新的vb返回给vc。
+ op: |
+  for (i = 0; i < 4; i ++)
+    vc[i] = vb[i];
+  vc[n] = va[n];
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-sp]
+-
+ name: simd_vextwn
+ inst: vextw
+ params:
+ -
+  intv8 va:
+ -
+  return intv8: va[n]
+ desc: |
+  将va中由n（有效值为0～7）指定的32位字元素，变为64位寄存器格式的字整数写入目的浮点寄存器的低64位，目的寄存器的高192位内容不确定。
+  该接口实际上对应8个接口，分别是simd_vextw0、simd_vextw1、simd_vextw2、simd_vextw3、simd_vextw4、simd_vextw5、simd_vextw6、simd_vextw7，比如：
+  vc=simd_vextw2(va)
+  表示va的 64：95这32位的字元素，变为64位寄存器格式的字整数写入vc低64位，其中vc高192位内容不确定。
+ op: return va[n];
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-int]
+-
+ name: simd_vextfn
+ inst: vextf
+ params:
+ -
+  doublev4 va:
+ -
+  return doublev4: va[n]
+ desc: |
+  将va中由n（有效值为0～3）指定的S浮点或D浮点元素存入目的寄存器的<63:0>中。此指令可实现S浮点和D浮点的提取。
+  该接口实际上对应4个接口，分别是simd_vextf0、simd_vextf1、simd_vextf2、simd_vextf3，比如：
+  vc=simd_vextf1(va)
+  表示va的 64：127这64位的浮点元素存入vc的<63:0>中。
+ op: return va[n];
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-dp]
+-
+ name: simd_vextfn
+ inst: vextf
+ params:
+ -
+  floatv4 va:
+ -
+  return floatv4: va[n]
+ desc: |
+  将va中由n（有效值为0～3）指定的S浮点或D浮点元素存入目的寄存器的<63:0>中。此指令可实现S浮点和D浮点的提取。
+  该接口实际上对应4个接口，分别是simd_vextf0、simd_vextf1、simd_vextf2、simd_vextf3，比如：
+  vc=simd_vextf1(va)
+  表示va的 64：127这64位的浮点元素存入vc的<63:0>中。
+ op: return va[n];
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-sp]
+-
+ name: simd_vcpyw
+ inst: vcpyw
+ params:
+ -
+  doublev4 va:
+ -
+  return intv8: |
+   *(int*)&va[0];
+ desc: |
+  将va低64位的寄存器格式字整数转换位32位字整数，复制成8个相同元素组成新的字整数向量写入目的寄存器。
+ op: |
+  for (i = 0; i < 8; i ++)
+    vc[i] = *(int*)&va[0];;
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-int, SIMD-sp]
+-
+ name: simd_vcpyw
+ inst: vcpyw
+ params:
+ -
+  floatv4 va:
+ -
+  return intv8: |
+   *(int*)&va[0];
+ desc: |
+  将va低64位的寄存器格式字整数转换位32位字整数，复制成8个相同元素组成新的字整数向量写入目的寄存器。
+ op: |
+  for (i = 0; i < 8; i ++)
+    vc[i] = *(int*)&va[0];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-int, SIMD-sp]
+-
+ name: simd_vcpyf
+ inst: vcpyf
+ params:
+ -
+  doublev4 va:
+ -
+  return doublev4: va[0]
+ desc: |
+  将va低64位浮点数据，复制成4个相同元素，组成新的浮点向量写入目的寄存器。
+ op: |
+  for (i = 0; i < 8; i ++)
+    vc[i] = va[0];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-dp]
+-
+ name: simd_vcpyf
+ inst: vcpyf
+ params:
+ -
+  floatv4 va:
+ -
+  return floatv4: va[0]
+ desc: |
+  将va低64位浮点数据，复制成4个相同元素，组成新的浮点向量写入目的寄存器。
+ op: |
+  for (i = 0; i < 8; i ++)
+    vc[i] = va[0];
+  return vc;
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-misc, SIMD-sp]
+-
+ name: simd_set_doublev4
+ params:
+ -
+  double a:
+ -
+  double b:
+ -
+  double c:
+ -
+  double d:
+ -
+  return doublev4: |
+   [a, b, c, d]
+ desc: |
+  doublev4类型的赋值函数，将4个double类型的数据传递到向量变量中。
+ eg: |
+  doublev4 va=simd_set_doublev4(1.0，2.0，3.0，4.0);
+  va中的值是这样的：
+    +-----+-----+-----+-----+
+    | 4.0 | 3.0 | 2.0 | 1.0 |
+    +-----+-----+-----+-----+
+  255                       0
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-set, SIMD-dp]
+-
+ name: simd_set_floatv4
+ params:
+ -
+  float a:
+ -
+  float b:
+ -
+  float c:
+ -
+  float d:
+ -
+  return floatv4: |
+   [a, b, c, d]
+ desc: |
+  floatv4类型的赋值函数，将4个float类型的数据传递到向量变量中。
+ eg: |
+  floatv4 va=simd_set_floatv4(1.0，2.0，3.0，4.0);
+  va中的值是这样的：
+    +-----+-----+-----+-----+
+    | 4.0 | 3.0 | 2.0 | 1.0 |
+    +-----+-----+-----+-----+
+  255                       0
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-set, SIMD-sp]
+-
+ name: simd_set_intv8
+ params:
+ -
+  int a:
+ -
+  int b:
+ -
+  int c:
+ -
+  int d:
+ -
+  int e:
+ -
+  int f:
+ -
+  int g:
+ -
+  int h:
+ -
+  return intv8: |
+   [a, b, c, d, e, f, g, h]
+ desc: |
+  intv8类型的赋值函数，将8个int类型的数据传递到向量变量中。
+ eg: |
+  va=simd_set_intv8(1,2,3,4,5,6,7,8);
+  va中的值是这样的：
+    +---+---+---+---+---+---+---+---+
+    | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 |
+    +---+---+---+---+---+---+---+---+
+  255                               0
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-set, SIMD-int]
+-
+ name: simd_set_uintv8
+ params:
+ -
+  unsigned int a:
+ -
+  unsigned int b:
+ -
+  unsigned int c:
+ -
+  unsigned int d:
+ -
+  unsigned int e:
+ -
+  unsigned int f:
+ -
+  unsigned int g:
+ -
+  unsigned int h:
+ -
+  return uintv8: |
+   [a, b, c, d, e, f, g, h]
+ desc: |
+  uintv8类型的赋值函数，将8个unsigned int类型的数据传递到向量变量中。
+ eg: |
+  va=simd_set_uintv8(1,2,3,4,5,6,7,8);
+  va中的值是这样的：
+    +---+---+---+---+---+---+---+---+
+    | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 |
+    +---+---+---+---+---+---+---+---+
+  255                               0
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-set, SIMD-int]
+-
+ name: simd_set_int256
+ params:
+ -
+  long a:
+ -
+  long b:
+ -
+  long c:
+ -
+  long d:
+ -
+  return int256: |
+   [a, b, c, d]
+ desc: |
+  int256类型的赋值函数，将4个long类型的数据传递到向量变量中。
+ eg: |
+  va=simd_set_int256(1,2,3,4);
+  va中的值是这样的：
+    +---+---+---+---+
+    | 4 | 3 | 2 | 1 |
+    +---+---+---+---+
+  255               0
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-set, SIMD-int]
+-
+ name: simd_set_uint256
+ params:
+ -
+  unsigned long a:
+ -
+  unsigned long b:
+ -
+  unsigned long c:
+ -
+  unsigned long d:
+ -
+  return uint256: |
+   [a, b, c, d]
+ desc: |
+  uint256类型的赋值函数，将4个unsigned long类型的数据传递到向量变量中。
+ eg: |
+  va=simd_set_uint256(1,2,3,4);
+  va中的值是这样的：
+    +---+---+---+---+
+    | 4 | 3 | 2 | 1 |
+    +---+---+---+---+
+  255               0
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-set, SIMD-int]
+-
+ name: simd_fprint_intv8
+ params:
+ -
+  FILE *file:
+ -
+  intv8 va:
+ desc: |
+  intv8类型的数据以8个int的形式打印到文件file中。
+ eg: |
+  va=simd_set_intv8(1,2,3,4,5,6,7,8);
+  simd_fprint_intv8(stderr, va);
+  打印的结果是这样的：
+  [8，7，6，5，4, 3, 2, 1 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-int]
+-
+ name: simd_fprint_uintv8
+ params:
+ -
+  FILE *file:
+ -
+  uintv8 va:
+ desc: |
+  uintv8类型的数据以8个int的形式打印到文件file中。
+ eg: |
+  va=simd_set_uintv8(1,2,3,4,5,6,7,8);
+  simd_fprint_uintv8(stderr, va);
+  打印的结果是这样的：
+  [8，7，6，5，4, 3, 2, 1 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-dp]
+-
+ name: simd_fprint_int256
+ params:
+ -
+  FILE *file:
+ -
+  int256 va:
+ desc: |
+  int256类型的数据以4个long的形式打印到文件file中。
+ eg: |
+  va=simd_set_int256(1,2,3,4);
+  simd_fprint_int256(stderr, va);
+  打印的结果是这样的：
+  [ 0x4, 0x3, 0x2, 0x1 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-dp]
+-
+ name: simd_fprint_uint256
+ params:
+ -
+  FILE *file:
+ -
+  uint256 va:
+ desc: |
+  uint256类型的数据以4个long的形式打印到文件file中。
+ eg: |
+  va=simd_set_uint256(1,2,3,4);
+  simd_fprint_uint256(stderr, va);
+  打印的结果是这样的：
+  [ 0x4, 0x3, 0x2, 0x1 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-dp]
+-
+ name: simd_fprint_floatv4
+ params:
+ -
+  FILE *file:
+ -
+  floatv4 va:
+ desc: |
+  floatv4类型的数据以4个float的形式打印到文件file中。
+ eg: |
+  va=simd_set_floatv4(1.0,2.0,3.0,4.0);
+  simd_fprint_floatv4(stderr, va);
+  打印的结果是这样的：
+  [ 3.0，4.0，2.0, 1.0 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-sp]
+-
+ name: simd_fprint_doublev4
+ params:
+ -
+  FILE *file:
+ -
+  doublev4 va:
+ desc: |
+  doublev4类型的数据以4个double的形式打印到文件file中。
+ eg: |
+  va=simd_set_doublev4(1.0,2.0,3.0,4.0);
+  simd_fprint_doublev4(stderr, va);
+  打印的结果是这样的：
+  [ 4.0，3.0，2.0, 1.0 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-dp]
+-
+ name: simd_print_intv8
+ params:
+ -
+  intv8 va:
+ desc: |
+  intv8类型的数据以8个int的形式打印到屏幕。
+ eg: |
+  va=simd_set_intv8(1,2,3,4,5,6,7,8);
+  simd_print_intv8(va);
+  打印的结果是这样的：
+  [8，7，6，5，4, 3, 2, 1 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-dp]
+-
+ name: simd_print_uintv8
+ params:
+ -
+  uintv8 va:
+ desc: |
+  uintv8类型的数据以8个int的形式打印到屏幕。
+ eg: |
+  va=simd_set_uintv8(1,2,3,4,5,6,7,8);
+  simd_print_uintv8(va);
+  打印的结果是这样的：
+  [8，7，6，5，4, 3, 2, 1 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-dp]
+-
+ name: simd_print_int256
+ params:
+ -
+  int256 va:
+ desc: |
+  int256类型的数据以4个long的形式打印到屏幕。
+ eg: |
+  va=simd_set_int256(1,2,3,4);
+  simd_print_int256(va);
+  打印的结果是这样的：
+  [ 0x4, 0x3, 0x2, 0x1 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-dp]
+-
+ name: simd_print_uint256
+ params:
+ -
+  uint256 va:
+ desc: |
+  uint256类型的数据以4个long的形式打印到屏幕。
+ eg: |
+  va=simd_set_uint256(1,2,3,4);
+  simd_print_uint256(va);
+  打印的结果是这样的：
+  [ 0x4, 0x3, 0x2, 0x1 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-dp]
+-
+ name: simd_print_floatv4
+ params:
+ -
+  floatv4 va:
+ desc: |
+  floatv4类型的数据以4个float的形式打印到屏幕。
+ eg: |
+  va=simd_set_floatv4(1.0,2.0,3.0,4.0);
+  simd_print_floatv4(va);
+  打印的结果是这样的：
+  [ 3.0，4.0，2.0, 1.0 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-sp]
+-
+ name: simd_print_doublev4
+ params:
+ -
+  doublev4 va:
+ desc: |
+  doublev4类型的数据以4个double的形式打印到屏幕。
+ eg: |
+  va=simd_set_doublev4(1.0,2.0,3.0,4.0);
+  simd_print_doublev4(va);
+  打印的结果是这样的：
+  [ 4.0，3.0，2.0, 1.0 ]
+ header: simd.h
+ tags: [MPE, CPE]
+ cates: [SIMD, SIMD-print, SIMD-dp]
