@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>神威二十二绝学速成大法（部分）</title>
+    <title>神威编译手册速查</title>
     <script src="lib/vue.min.js"></script>
     <script src="lib/js-yaml.min.js"></script>
     
@@ -144,12 +144,21 @@
   </head>
   <body>
     <div id="app">
-      <div class="col-xs-3" @change="updateList()">
+      <div class="row">
+	<div class="col-xs-12" style="text-align: center">
+	  <h1>神威编译手册速查工具</h1>
+	</div>
+      </div>
+      <div class="col-xs-3" @change="updateList()">	
 	<filter-set :names="cates" :by="'类型'"
 		    ref="catesflt"></filter-set>
 	<filter-set :names="headers" :by="'header'" ref="hdrsflt"></filter-set>
 	<filter-set :names="tags" :by="'标签'" ref="tagsflt"></filter-set>
 	<filter-set :names="types" :by="'参数'" :mode="'all'" :alter="'Marco'" ref="typesflt"></filter-set>
+	<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">
+	  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+	</a><br />
+	This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
       </div>
 
       <div class="col-xs-9">
