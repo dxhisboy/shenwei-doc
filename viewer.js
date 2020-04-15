@@ -211,5 +211,3 @@ req.addEventListener("load", function (){
     mainVue.showstubs = stubs;
     mainVue.stubs = stubs;
 });
-req.open("GET", "data.yaml");
-req.send();
