@@ -26,19 +26,19 @@
 	<div class="list-group-item-text" v-if="expanded">
 	  <div class="panel panel-default">
 	    <div class="panel-heading">
-	      <b>基本信息:</b>
+	      <b>Basics:</b>
 	    </div>
 	    <div class="panel-body mono">
 	      <span v-if="stub.header">
 		#include "{{stub.header}}"<br>
 	      </span>
 	      <span v-if="stub.inst">
-		<b>指令:</b> {{stub.inst}}<br>
+		<b>Instruction:</b> {{stub.inst}}<br>
 	      </span>
 	    </div>
 	    
 	    <div class="panel-heading" v-if="hasParamDesc">
-	      <b>参数和返回值:</b>
+	      <b>Parameter and return value:</b>
 	    </div>
 	    <div class="table-responsive" v-if="hasParamDesc">
 	      <table class="table mono">
@@ -48,8 +48,8 @@
 		</colgroup>
 		<thead>
 		  <tr>
-		    <td><b>名称</b></td>
-		    <td><b>描述</b></td>
+		    <td><b>name</b></td>
+		    <td><b>description</b></td>
 		  </tr>
 		</thead>
 		<tbody>
@@ -62,7 +62,7 @@
 		    </td>
 		  </tr>
 		  <tr v-if="stub.ret.desc">
-		    <td><b>返回值</b></td>
+		    <td><b>return value</b></td>
 		    <td>
 		      <p v-for="desc in stub.ret.desc">
 			{{desc}}
@@ -73,7 +73,7 @@
 	      </table>
 	    </div>
 	    <div class="panel-heading">
-	      <b>描述:</b>
+	      <b>description:</b>
 	    </div>
 	    <div class="panel-body">
 	      <p v-for="desc in stub.desc">
@@ -82,14 +82,14 @@
 	    </div>
 
 	    <div class="panel-heading" v-if="stub.eg">
-	      <b>例子:</b>
+	      <b>example:</b>
 	    </div>
 	    <div class="panel-body" v-if="stub.eg">
 	      <pre>{{stub.eg}}</pre>
 	    </div>
 
 	    <div class="panel-heading" v-if="stub.op">
-	      <b>等效操作:</b>
+	      <b>equivalent operations:</b>
 	    </div>
 	    <div class="panel-body" v-if="stub.op">
 	      <pre>{{stub.op}}</pre>
@@ -113,11 +113,11 @@
 	<div class="panel-heading">
 	  <div class="row">
 	    <div class="col-xs-7">
-	      <span>按{{by}}过滤:</span>
+	      <span>Filter by {{by}}:</span>
 	    </div>
 	    <div class="col-xs-5">
 	      <input type="checkbox" v-model="any">
-	      <span>任意</span>
+	      <span>Any</span>
 	    </div>
 	  </div>
 	</div>
@@ -135,7 +135,7 @@
 	<input type="text" class="form-control" placeholder="Type something to search" v-model="keyword" @keyup="$parent.updateList()"></input>
 	<span class="input-group-addon">
 	  <input type="checkbox" v-model="withDesc" @change="$parent.updateList()"></input>
-	  <span>包括描述</span>
+	  <span>Including description</span>
 	</span>
       </div>
     </script>
@@ -146,15 +146,15 @@
     <div id="app">
       <div class="row">
 	<div class="col-xs-12" style="text-align: center">
-	  <h1>神威编译手册速查工具</h1>
+	  <h1>Fast Lookup for Sunway's Compiler Handbook</h1>
 	</div>
       </div>
       <div class="col-xs-3" @change="updateList()">	
-	<filter-set :names="cates" :by="'类型'"
+	<filter-set :names="cates" :by="'type'"
 		    ref="catesflt"></filter-set>
 	<filter-set :names="headers" :by="'header'" ref="hdrsflt"></filter-set>
-	<filter-set :names="tags" :by="'标签'" ref="tagsflt"></filter-set>
-	<filter-set :names="types" :by="'参数'" :mode="'all'" :alter="'Marco'" ref="typesflt"></filter-set>
+	<filter-set :names="tags" :by="'tags'" ref="tagsflt"></filter-set>
+	<filter-set :names="types" :by="'patameter types'" :mode="'all'" :alter="'Marco'" ref="typesflt"></filter-set>
 	<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">
 	  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
 	</a><br />
