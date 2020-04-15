@@ -3,52 +3,52 @@
  params:
  -
   return int: |
-   成功：返回0，表示加速线程初始化成功；
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_init()将失败，并返回相应的值：
-   -EINVAL：初始化失败。
+   Success: Returns 0, indicating that the acceleration thread initialization was successful;
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_init () will fail and return the corresponding value:
+   -EINVAL: Initialization failed.
  cates: [Athread]
  tags: [MPE]
  desc: |
-  完成加速线程库的初始化，在使用任何线程库接口前必须调用该接口。
+  To complete the initialization of the accelerated thread library, you must call this interface before using any thread library interface.
  header: "athread.h"
 # inst: test1
 # op: |
-#  c = a + b
-#  return c
+# c = a + b
+# return c
 -
  name: athread_create
  params:
  -
-  int id: 线程绑定ID号
+  int id: thread binding ID number
  -
-  start_routine fpc: 函数指针
+  start_routine fpc: function pointer
  -
-  void* arg: 函数f的参数起始地址
+  void * arg: the starting address of the parameter of function f
  -
   return int: |
-   成功：返回0。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_create()将失败，并返回相应的值：
-   -EAGIAN：超出了系统限制，创建的线程太多。
-   -EINVAL：ID号非法(负数，或者超过最大线程数)；或者ID号已经被占用，被占资源没有释放。
+   Success: 0 is returned.
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_create () will fail and return the corresponding value:
+   -EAGIAN: The system limit was exceeded and too many threads were created.
+   -EINVAL: The ID number is illegal (negative, or exceeds the maximum number of threads); or the ID number is already occupied and the occupied resources are not released.
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc: |
-  在当前进程中添加新的受控线程。线程执行的起始任务由函数fpc指定；函数fpc的参数由arg提供。
-  线程绑定ID号后，线程位置跟ID号无关，如果需要知道线程在核组中所占用的从核资源信息，可以调用相关接口得到该类信息。
+  Add a new controlled thread in the current process. The starting task executed by the thread is specified by the function fpc; the parameters of the function fpc are provided by arg.
+  After the thread is bound to the ID number, the thread position has nothing to do with the ID number. If you need to know the information of the secondary core resources occupied by the thread in the core group, you can call the relevant interface to get this type of information.
 -
  name: athread_wait
  params:
  -
-  int id: 等待线程id号
+  int id: waiting thread id number
  -
   return int: |
-   成功：返回0；
-   失败：其它任何返回值都表示出现了错
-   -ESRCH：没有找到指定线程ID对应的线程。
-   -EINVAL：ID号非法。
+   Success: return 0;
+   Failure: Any other return value indicates an error
+   -ESRCH: The thread corresponding to the specified thread ID was not found.
+   -EINVAL: The ID number is illegal.
  desc: |
-  显式阻塞调用该线程，直到指定的线程终止。指定的线程必须位于当前的进程中。
+  Explicitly block the calling thread until the specified thread terminates. The specified thread must be in the current process.
  header: athread.h
  tags: [MPE]
  cates: [Athread]
@@ -56,40 +56,40 @@
  name: athread_end
  params:
  -
-  int id: 指定线程ID号
+  int id: Specify the thread ID number
  -
   return int: |
-   成功：返回0，线程所占用的从核资源被成功关闭。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_end()将失败，并返回相应的值。
-   -ESRCH：没有找到给定线程ID对应的线程。
-   -EINVAL：线程从核流水线终止失败，ID对应线程仍然在作业运行中。
+   Success: returns 0, the slave core resource occupied by the thread is successfully closed.
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_end () will fail and return the corresponding value.
+   -ESRCH: The thread corresponding to the given thread ID was not found.
+   -EINVAL: The thread failed to terminate from the core pipeline, and the thread corresponding to the ID is still running.
  desc: |
-  在确定线程所占从核无相关作业后，停滞从核流水线，关闭从核，该从核在本进程中将无法再次使用。
-  必须保证从核无任何用户作业才能使用该函数。
+  After determining that the slave core has no related operations, the slave core pipeline is stalled, and the slave core is shut down.
+  You must ensure that there are no user jobs for the slave core to use this function.
  eg: |
-  typedef void * (*start_routine)(void *);
-  int fun(void * arg){
-    retrun (int)arg[0]+(int)arg[1];
+  typedef void * (* start_routine) (void *);
+  int fun (void * arg) {
+    retrun (int) arg [0] + (int) arg [1];
   }
-  main(){
-    int tid1,tid2;
-    int arg1[2],arg2[2];
-    //线程库初始化
-    athread_init();
-    //创建绑定线程，线程ID号为0
-    arg1[0]=1;
-    arg1[1]=2;
-    athread_create(0, fun,arg1);
-    //创建绑定线程，线程ID号为1
-    arg2[0]=3;
-    arg2[1]=4;
-    athread_create(1, fun,arg2);
-    //等待线程结束
-    athread_wait(0);
-    athread_wait(1);
-    //关闭线程所占从核流水线，该从核无法在本进程中继续使用
-    athread_end(0);
-    athread_end(1);
+  main () {
+    int tid1, tid2;
+    int arg1 [2], arg2 [2];
+    // Thread library initialization
+    athread_init ();
+    // Create a binding thread, the thread ID number is 0
+    arg1 [0] = 1;
+    arg1 [1] = 2;
+    athread_create (0, fun, arg1);
+    // Create a binding thread, the thread ID number is 1
+    arg2 [0] = 3;
+    arg2 [1] = 4;
+    athread_create (1, fun, arg2);
+    // Wait for the thread to end
+    athread_wait (0);
+    athread_wait (1);
+    // Close the slave core pipeline occupied by the thread, and the slave core cannot continue to be used in this process
+    athread_end (0);
+    athread_end (1);
   }
  header: athread.h
  tags: [MPE]
@@ -98,17 +98,17 @@
  name: athread_spawn
  params:
  -
-  start_routine fpc: 函数指针；
+  start_routine fpc: function pointer;
  -
-  void* arg: 函数f的参数起始地址。
+  void * arg: The starting address of the parameter of function f.
  -
   return int: |
-   成功：返回0。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_spawn()将失败，并返回相应的值。
-   -EINVAL：线程组创建失败。
+   Success: 0 is returned.
+   Failure: Any other return value indicates that an error has occurred. If any of the following conditions are detected, athread_spawn () will fail and return the corresponding value.
+   -EINVAL: Thread group creation failed.
  desc: |
-  在当前进程中添加新的受控线程组。线程执行的任务由函数fpc指定；函数fpc的参数由arg提供。
-  调用时athread_spawn接口时，启动核组中的所有可用从核资源。如果需要知道线程组在核组中所占用的从核资源信息，可以调用相关接口得到该类信息。
+  Add a new controlled thread group in the current process. The task performed by the thread is specified by the function fpc; the parameters of the function fpc are provided by arg.
+  When the athread_spawn interface is called, all available slave core resources in the core group are started. If you need to know the secondary core resource information occupied by the thread group in the core group, you can call the relevant interface to get this type of information.
  header: athread.h
  tags: [MPE]
  cates: [Athread]
@@ -117,77 +117,77 @@
  params:
  -
   return int: |
-   成功：返回0；
-   失败：其它任何返回值都表示出现了错
-   -EINVAL：核组内无线程组运行。
+   Success: return 0;
+   Failure: Any other return value indicates an error
+   -EINVAL: No thread group is running in the core group.
  desc: |
-  显式阻塞等待该线程组，直到指定的线程组终止。指定的线程组必须位于当前的进程中。
+  Explicitly block waiting for the thread group until the specified thread group is terminated. The specified thread group must be in the current process.
  header: athread.h
  tags: [MPE]
  cates: [Athread]
 -
  name: athread_halt
  desc: |
-  在确定线程组所占所有从核无相关作业后，停滞从核组流水线，关闭从核组，该从核组在本进程无法再次使用。
-  必须保证从核组无任何用户作业才能使用该函数。
+  After determining that all slave cores have no related operations, the slave core group pipeline is stopped, and the slave core group is shut down.
+  You must ensure that there is no user job for the slave core group to use this function.
  params:
  -
   return int: |
-   成功：返回0，线程所占用的从核资源被成功关闭。
-   失败：其它任何返回值都表示出现错误，如果监测到以下任一情况，athread_halt()将失败，并返回相应的值。
-   -EINVAL：无法正常关闭从核资源。
+   Success: returns 0, the slave core resource occupied by the thread is successfully closed.
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_halt () will fail and return the corresponding value.
+   -EINVAL: The secondary nuclear resource cannot be shut down normally.
  header: athread.h
  tags: [MPE]
  cates: [Athread]
 -
  name: athread_spawn_group
  desc: |
-  在当前进程中添加新的带屏蔽码的受控线程组。线程执行的任务由函数fpc指定；函数fpc的参数由arg提供。
-  调用时athread_spawn_group接口时，启动屏蔽码中所有从核资源。如果需要知道线程组在核组中所占用的从核资源信息，可以调用相关接口得到该类信息。
+  Add a new controlled thread group with mask code in the current process. The task performed by the thread is specified by the function fpc; the parameters of the function fpc are provided by arg.
+  When the athread_spawn_group interface is called, all slave core resources in the shield code are started. If you need to know the secondary core resource information occupied by the thread group in the core group, you can call the relevant interface to get this type of information.
  params:
  -
-  unsigned long gmask: 从核屏蔽码；
+  unsigned long gmask: mask code from the core;
  -
-  start_routine fpc: 函数指针；
+  start_routine fpc: function pointer;
  -
-  void* arg: 函数f的参数起始地址。
+  void * arg: The starting address of the parameter of function f.
  -
   return int: |
-   成功：返回0。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_spawn_group()将失败，并返回相应的值。
-   -EINVAL：线程组创建失败。
+   Success: 0 is returned.
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_spawn_group () will fail and return the corresponding value.
+   -EINVAL: Thread group creation failed.
  header: athread.h
  tags: [MPE]
  cates: [Athread]
 -
  name: athread_join_group
  desc: |
-  显式阻塞等待带屏蔽码线程组任务结束，直到指定的线程组终止后退出该接口。指定的线程组必须位于当前的进程中。
+  Explicit blocking waits for the end of the task of the thread group with the mask code until the specified thread group terminates and exits the interface. The specified thread group must be in the current process.
  params:
  -
-  unsigned long gmask: 从核屏蔽码
+  unsigned long gmask: mask code from the core
  -
   return int: |
-   成功：返回0；
-   失败：其它任何返回值都表示出错
-   -EINVAL：核组内无线程组运行。
+   Success: return 0;
+   Failure: Any other return value indicates an error
+   -EINVAL: No thread group is running in the core group.
  header: athread.h
  tags: [MPE]
  cates: [Athread]
 -
  name: athread_task
  desc: |
-  创建抢占动态调度主核线程。执行的线程任务由函数fpc指定；arg由用户指定线程任务总数，该值表示任务结束的判断标志。
+  Create a preemptive dynamic scheduling main core thread. The executed thread task is specified by the function fpc; arg is specified by the user, the total number of thread tasks, the value represents the judgment flag of the end of the task.
  params:
  -
-  start_routine fpc: 函数指针；
+  start_routine fpc: function pointer;
  -
-  void* arg: 任务总数
+  void * arg: total number of tasks
  -
   return int: |
-   成功：返回0；
-   失败：其它任何返回值都表示出错
-   -EINVAL：线程组创建失败。
+   Success: return 0;
+   Failure: Any other return value indicates an error
+   -EINVAL: Thread group creation failed.
  header: athread.h
  tags: [MPE]
  cates: [Athread]
@@ -197,279 +197,279 @@
  tags: [MPE]
  cates: [Athread]
  desc: |
-  创建抢占动态调度从核线程组。执行的线程任务由函数fpc指定；arg由用户指定线程任务总数，该值表示任务结束的判断标志。
-  由于主从核代码对应使用不同的编译器，从核编译的代码不能被主核调用，反之亦然，用户必须保证主核、从核参与的抢占任务有各自对应的代码和编译支撑。
+  Create a preemptive dynamic scheduling slave core thread group. The executed thread task is specified by the function fpc; arg is specified by the user, the total number of thread tasks, the value represents the judgment flag of the end of the task.
+  Since the master-slave core code uses different compilers, the code compiled by the slave core cannot be called by the master core, and vice versa, the user must ensure that the preemption tasks involved in the master core and slave core have their own corresponding code and compilation support.
  params:
  -
-  start_routine fpc: 函数指针；
+  start_routine fpc: function pointer;
  -
-  void* arg: 任务总数
+  void * arg: total number of tasks
  -
   return int: |
-   成功：返回0。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_spawn_task()将失败，并返回相应的值。
-   -EINVAL：线程组创建失败。
+   Success: 0 is returned.
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_spawn_task () will fail and return the corresponding value.
+   -EINVAL: Thread group creation failed.
 -
  name: athread_get_max_threads
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc: |
-  使用该接口得到当前进程的可用的所有核组线程资源总数。
+  Use this interface to get the total number of all core group thread resources available for the current process.
  params:
  -
   return int: |
-   成功：返回核组内可用最大线程个数(1<=ret<=64)；
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get_max_threads将失败，并返回相应的值。
-   -EINVAL：返回失败，出现异常。
+   Success: Returns the maximum number of threads available in the core group (1 <= ret <= 64);
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_get_max_threads will fail and return the corresponding value.
+   -EINVAL: Return failed with an exception.
 -
  name: athread_set_num_threads
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc: |
-  使用该接口设置当前进程下一个并行区启动的所有核组线程总数。
+  Use this interface to set the total number of all core group threads started in the next parallel zone of the current process.
  params:
  -
-  int num: 线程总数
+  int num: total number of threads
  -
   return int: |
-   成功：0；
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_set_num_threads将失败，并返回相应的值。
-   -EAGAIN：设置线程数目超过了可用线程资源，将返回该值。
-   -EINVAL：并行区线程数设置失败，比如上个并行区任务未完成。
+   Success: 0;
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_set_num_threads will fail and return the corresponding value.
+   -EAGAIN: Set the number of threads to exceed the available thread resources, this value will be returned.
+   -EINVAL: Failed to set the number of threads in the parallel area, for example, the task of the previous parallel area was not completed.
 -
  name: athread_get_num_threads
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc: |
-  使用该接口得到当前进程启动的所有核组线程总数。
+  Use this interface to get the total number of all core group threads started by the current process.
  params:
  -
   return int: |
-   成功：返回当前核组内线程个数(1<=ret<=64)；
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get_num_threads将失败，并返回相应的值。
-   -EINVAL：返回失败，出现异常。
+   Success: Returns the number of threads in the current core group (1 <= ret <= 64);
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_get_num_threads will fail and return the corresponding value.
+   -EINVAL: Return failed with an exception.
 -
  name: athread_cancel
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc: |
-  该函数用来终止指定线程，线程ID以及资源可以立即收回。
-  线程结束可以通过以下方法来终止执行：
-  从线程的第一个过程返回，即线程的启动例程。参考athread_create。
-  调用athread_cancel，提前退出。
+  This function is used to terminate the specified thread, and the thread ID and resources can be recovered immediately.
+  The end of the thread can be terminated by the following methods:
+  Return from the first process of the thread, that is, the thread's startup routine. Refer to athread_create.
+  Call athread_cancel to exit early.
  params:
  -
-  int id: 指定退出线程号
+  int id: specify the exit thread number
  -
   return int: |
-   成功：返回0；
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_cancel将失败，并返回相应的值。
-   -ESRCH：没有找到指定线程ID对应的线程。
-   -EINVAL：ID号非法。
-   -EFAULT：ID线程对应从核故障。
+   Success: return 0;
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_cancel will fail and return the corresponding value.
+   -ESRCH: The thread corresponding to the specified thread ID was not found.
+   -EINVAL: The ID number is illegal.
+   -EFAULT: The ID thread corresponds to the slave core failure.
 -
  name: athread_signal
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc:
-  接收中断，并指定中断处理函数。
-  参考athread_sigqueue()接口。
+  Receive an interrupt and specify the interrupt processing function.
+  Refer to the athread_sigqueue () interface.
  params:
  -
-  int signo: 中断信号
+  int signo: interrupt signal
  -
-  start_routine fpc: 中断处理函数
+  start_routine fpc: interrupt handler function
  -
   return void:
 -
  name: Exception_Kind
  params:
  -
-  enum UNALIGN: 不对界异常
+  enum UNALIGN: out of bounds exception
  -
-  enum ILLEGAL:	非法指令
+  enum ILLEGAL: illegal instruction
  -
-  enum OVI: 整数溢出
+  enum OVI: integer overflow
  -
-  enum INE: 非精确结果
+  enum INE: inexact results
  -
-  enum UNF: 下溢
+  enum UNF: underflow
  -
-  enum OVF: 上溢
+  enum OVF: overflow
  -
-  enum DBZ: 除数为0
+  enum DBZ: divisor is 0
  -
-  enum INV: 无效操作
+  enum INV: invalid operation
  -
-  enum DNO: 非规格化数
+  enum DNO: denormalized number
  -
-  enum CLASSE1:	分类计数器溢出
+  enum CLASSE1: classification counter overflow
  -
-  enum CLASSE2:	分类参数设置异常
+  enum CLASSE2: abnormal classification parameter setting
  -
-  enum SELLDWE:	向量查表异常
+  enum SELLDWE: Vector lookup table is abnormal
  -
-  enum LDME: LDM相关异常
+  enum LDME: LDM related exception
  -
-  enum SDLBE: SDLB代换时发生越权或越界
+  enum SDLBE: Unauthorized or out of bounds occurred during SDLB replacement
  -
-  enum MABC: 访问主存的地址超出主存实际配置的容量
+  enum MABC: The address to access the main memory exceeds the actual configured capacity of the main memory
  -
-  enum MATNO: 主存访问目标核组不在位
+  enum MATNO: main memory access target core group is not in place
  -
-  enum RAMAR: 从核收到访存异常错误响应
+  enum RAMAR: Received memory access exception error response from the core
  -
-  enum IFLOWE: 指令流异常
+  enum IFLOWE: abnormal instruction flow
  -
-  enum SBMDE1: SBMD匹配异常和SBMD查询异常
+  enum SBMDE1: SBMD match exception and SBMD query exception
  -
-  enum SBMDE2: 其他SBMD异常
+  enum SBMDE2: Other SBMD anomalies
  -
-  enum SYNE1: 从核发出的同步向量中不包含本从核
+  enum SYNE1: The synchronization vector sent from the core does not contain the current core
  -
-  enum SYNE2: 可降级同步不使能
+  enum SYNE2: degradable synchronization is not enabled
  -
-  enum RCE: 通信异常
+  enum RCE: abnormal communication
  -
-  enum DMAE1: DMA产生DMA描述符静态检查异常
+  enum DMAE1: DMA generates DMA descriptor static check exception
  -
-  enum DMAE2: DMA产生DMA描述符静态检查警告
+  enum DMAE2: DMA generates DMA descriptor static check warning
  -
-  enum DMAE3: 保留
+  enum DMAE3: reserved
  -
-  enum DMAE4: 行集合模式使用过程中有可能出现访问地址超出LDM容量
+  enum DMAE4: It is possible that the access address exceeds the LDM capacity during the use of row collection mode
  -
-  enum DMAE5: 保留
+  enum DMAE5: reserved
  -
-  enum IOE1: 访问保留的IO空间地址
+  enum IOE1: access reserved IO space address
  -
-  enum IOE2: IO访问越权
+  enum IOE2: Unauthorized access to IO
  -
-  enum IOE3: IO不可访问
+  enum IOE3: IO is not accessible
  -
-  enum OTHERE: 用户不关心的各类异常
+  enum OTHERE: all kinds of exceptions that users don't care about
  -
   return enum:
- desc: 可以挂载的异常类型
+ desc: the type of exception that can be mounted
 -
  name: athread_expt_signal
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc: |
-  挂载特定异常的处理函数。  
-  a：异常类型：
-    根据申威26011从核异常类型，用户可以挂载Exception_Kind中的32种异常处理信号。
-  b：挂载方式
-    athread_expt_signal（int exceptnum， void *handler）
-  c：异常处理函数
-    用户自定义异常处理函数原型为：
-    handler_t * handler(int signum, siginfo_t *sinfo, struct sigcontext *sigcontext)
-    第一个参数：signum为异常信号
-    第二个参数：sinfo的信息如下：
-    sinfo->si_signo =signum；	// 异常信号
-    sinfo->si_pid = peid;		// 出现异常的从核号
-    sinfo->si_uid = cgid;		// 出现异常的核组号
+  Mount specific exception handling functions.
+  a: Exception type:
+    According to Shenwei 26011 slave nuclear exception type, users can mount 32 exception handling signals in Exception_Kind.
+  b: Mounting method
+    athread_expt_signal (int exceptnum, void * handler)
+  c: exception handling function
+    The prototype of the user-defined exception handling function is:
+    handler_t * handler (int signum, siginfo_t * sinfo, struct sigcontext * sigcontext)
+    The first parameter: signum is an abnormal signal
+    The second parameter: sinfo information is as follows:
+    sinfo-> si_signo = signum; // abnormal signal
+    sinfo-> si_pid = peid; // Abnormal slave core number
+    sinfo-> si_uid = cgid; // Abnormal core group number
     
-    第三个参数：sigcontext的前三个参数用来保留特定信息，如下：
-    sigcontext-> sc_onstack			// 从核异常PC是否精确标志
-    sigcontext->sc_pc				// 从核异常PC 
-    sigcontext-> sc_mask				// 从核数据流异常访存信息
-    sc_pc如果为0表示没有异常PC，不为0的情况下根据sc_onstack判断是否为精确PC。
-    sc_onstack为0表示没有精确异常pc，此时sc_pc记录的是发生异常时的非精确PC；sc_onstack为1表示有精确异常pc，此时sc_pc记录的是发生异常时的精确PC；
-    sc_mask项只对数据流异常DFLOWE有效，为4b`0001表示LD主存，为4b`0010表示ST主存，为4b`0100表示DMA_GET，为4b`1000表示DMA_PUT。
-    sigcontext其它各个域的内容由os确定并原样传给用户处理程序。
-    发生异常时，线程库会报出第一个捕获的异常，这个异常可以是核组异常也可以是从核异常。如果用户没有挂载相应该异常的处理函数，那么线程库会打印异常相关的所有信息，halt发生异常的从核，并退出程序；如果用户挂载了该异常的处理函数，则进入用户定义的异常处理函数。
-    （For 并行C库：athread_expt_signal_for_ccc(void *handler)
-    并行C库使用该函数对所有异常事件进行挂载，发生异常时，将会进入并行C库定义的异常函数进行处理，handler函数的参数如下：
-    void  handle(int sig, siginfo_t *sinfo, struct sigcontext *sigcontext)
-    上述三个参数的内容由操作系统确定并原样传给并行C库异常处理函数
-    ）
+    The third parameter: The first three parameters of sigcontext are used to retain specific information, as follows:
+    sigcontext-> sc_onstack // Whether the slave nuclear abnormal PC is accurately marked
+    sigcontext-> sc_pc // From abnormal nuclear PC
+    sigcontext-> sc_mask // Abnormal access to information from nuclear data stream
+    If sc_pc is 0, there is no abnormal PC. If it is not 0, judge whether it is an accurate PC according to sc_onstack.
+    When sc_onstack is 0, there is no precise abnormal PC. At this time, sc_pc records the inaccurate PC when the exception occurs; sc_onstack is 1 indicates that there is a precise abnormal PC. At this time, sc_pc records the accurate PC when the exception occurs;
+    The sc_mask item is only valid for the data flow exception DFLOWE. 4b`0001 means LD main memory, 4b`0010 means ST main memory, 4b`0100 means DMA_GET, and 4b`1000 means DMA_PUT.
+    The contents of other fields of sigcontext are determined by os and passed to the user processing program as they are.
+    When an exception occurs, the thread library will report the first caught exception. This exception can be a core group exception or a slave core exception. If the user does not mount the corresponding handler for the exception, the thread library will print all the information related to the exception, halt the abnormal slave core, and exit the program; if the user mounts the handler for the exception, enter the user-defined Exception handling function.
+    (For parallel C library: athread_expt_signal_for_ccc (void * handler)
+    The parallel C library uses this function to mount all abnormal events. When an exception occurs, it will enter the exception function defined by the parallel C library for processing. The parameters of the handler function are as follows:
+    void handle (int sig, siginfo_t * sinfo, struct sigcontext * sigcontext)
+    The content of the above three parameters is determined by the operating system and passed to the parallel C library exception handling function as is
+    )
  params:
  -
-  int signo: 异常信号
+  int signo: abnormal signal
  -
-  start_routine fpc: 异常处理函数
+  start_routine fpc: exception handling function
 -
  name: IO_addr
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc:
-  主核可以通过IO访问局存，该宏返回从核LDM变量element的IO地址。
-  IO_addr宏不会判断penum和cgnum的合法性，由用户保证。
+  The master core can access the local storage through IO. This macro returns the IO address of the slave core LDM variable element.
+  The IO_addr macro does not judge the legality of penum and cgnum, and is guaranteed by the user.
  params:
  -
-  element: 从核程序内的局存私有变量__thread_local elment，主核使用IO_addr接口前必须加extern __thread声明成外部变量
+  element: Locally stored private variable __thread_local elment in the core program, extern __thread must be added as an external variable before the master core uses the IO_addr interface
  -
-  penum: 核号
+  penum: nuclear number
  -
-  cgnum: 核组号
+  cgnum: nuclear group number
  -
-  return: 返回IO地址
+  return: return IO address
  eg: |
-  从核程序slave.c:
-    __thread_local char ch='b';
-    __thread_local long para[10] __attribute__((__aligned__(128)))= {0x123, 0x234, 0x345, 0x456};
-  主核程序main.c：
-    extern long __thread para[];
+  From the nuclear program slave.c:
+    __thread_local char ch = 'b';
+    __thread_local long para [10] __attribute __ ((__ aligned __ (128))) = {0x123, 0x234, 0x345, 0x456};
+  Main nuclear program main.c:
+    extern long __thread para [];
     extern char __thread ch;
-    unsigned long  LDM_addr;
-    LDM_addr = IO_addr(para[0], 23，0);
-  这样，LDM_addr等于第0号核组第23号从核上para[0]的IO地址
+    unsigned long LDM_addr;
+    LDM_addr = IO_addr (para [0], 23, 0);
+  In this way, LDM_addr is equal to the IO address of para [0] on the secondary core of core group 0
 -
  name: h2ldm
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc: |
-  主核可以通过IO访问局存，该宏直接在主核对从核LDM变量element进行IO存取操作
-  h2ldm宏不会判断penum和cgnum的合法性，由用户保证。
+  The master core can access the local storage through IO, this macro directly performs IO access operations on the slave core LDM variable element in the master core
+  The h2ldm macro does not judge the legality of penum and cgnum, and is guaranteed by the user.
  params:
  -
-  element: 从核程序内的局存私有变量__thread_local elment，主核使用IO_addr接口前必须加extern __thread声明成外部变量
+  element: Locally stored private variable __thread_local elment in the core program, extern __thread must be added as an external variable before the master core uses the IO_addr interface
  -
-  penum: 核号
+  penum: nuclear number
  -
-  cgnum: 核组号
+  cgnum: nuclear group number
  -
   return:
  eg: |
-  从核程序slave.c:
-    __thread_local char ch='b';
-    __thread_local long para[10] __attribute__((__aligned__(128)))= {0x123, 0x234, 0x345, 0x456};
-  主核程序main.c：
-    extern long __thread para[];
+  From the nuclear program slave.c:
+    __thread_local char ch = 'b';
+    __thread_local long para [10] __attribute __ ((__ aligned __ (128))) = {0x123, 0x234, 0x345, 0x456};
+  Main nuclear program main.c:
+    extern long __thread para [];
     extern char __thread ch;
-    unsigned long  LDM_addr;
-    h2ldm(para[0], 23, 0) = 0xaaa;
-    h2ldm(ch, 5，1) = 'z';
-  主核对0号核组第23号从核上局存变量para[0]赋值；主核对1号核组第5号从核上的局存变量ch赋值。
-  备注：
-    线程create和spawn接口只带一个参数接口。而主核访问从核局存接口可以用作主核对核组加速区进行批量的参数赋值。比如：从核程序专门申请一块局存空间用作存放参数，主核在启动不同的加速区之前可以对这块参数区进行赋值；如果每个从核上分配相同的参数，通常最优的做法是只对某一个从核进行参数赋值，然后从核通过寄存器通信将参数广播到核组上所有的从核。
+    unsigned long LDM_addr;
+    h2ldm (para [0], 23, 0) = 0xaaa;
+    h2ldm (ch, 5, 1) = 'z';
+  The master checks the assignment of the local storage variable para [0] on the 23rd slave core of the No. 0 core group; the master checks the assignment of the local storage variable ch on the 5th slave core of the No. 1 core group.
+  Remarks:
+    The thread create and spawn interfaces have only one parameter interface. The master core access slave storage interface can be used as the master core to perform batch parameter assignment for the core group acceleration area. For example: the slave core program specifically applies for a local storage space for storing parameters. The master core can assign values ​​to this parameter area before starting different acceleration areas; if the same parameters are assigned to each slave core, it is usually best practice It is to assign parameters to only one slave core, and then the slave core broadcasts the parameters to all slave cores on the core group through register communication.
 -
  name: athread_idle
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc:
-  使用该函数可获得当前从核线程组是否处于空闲状态。
-  这里的空闲状态是指等待任务的状态，也即：线程组未执行用户spawn的从核加速线程或线程组已经完成用户spawn的从核加速线程。
+  Use this function to obtain whether the current slave core thread group is idle.
+  The idle state here refers to a state of waiting for a task, that is, the thread group does not execute the slave core acceleration thread of the user spawn or the thread group has completed the user spawn slave core acceleration thread.
  params:
  -
   return unsigned long: |
-   如果从核组处于空闲状态则返回当前可用的从核位图；否则返回0。
+   If the slave core group is idle, it returns the currently available slave core bitmap; otherwise, it returns 0.
  eg: |
   unsigned long idleslave;
-  if(idleslave=athread_idle())
+  if (idleslave = athread_idle ())
   {
-    用从核优化(spawn)；
-    ……
+    Use slave optimization (spawn);
+    ...
   }
 -
  name: athread_task_info
@@ -477,18 +477,18 @@
  tags: [MPE]
  cates: [Athread]
  desc: |
-  查询当任务所在CPU中，参与任务执行的核组个数以及当前所在核组的核组号。分别通过查看内部库变量__cgid/__cgnum来得到相应的值。
-  调用该接口前，必须先调用athread_task_info来初始化__cgid和__cgnum，通过内部变量来通知参与同步的核组的个数。
-  该接口会占有交叉段前64B（0x6000000000~0x6000000000+0x40）的数据作为锁空间，用户在使用该接口时需要注意避开该空间，防止不可预测的错误出现。
+  Query the number of core groups participating in the task execution and the core group number of the current core group in the CPU where the task is located. Obtain the corresponding value by looking at the internal library variables __cgid / __ cgnum respectively.
+  Before calling this interface, you must first call athread_task_info to initialize __cgid and __cgnum, and notify the number of core groups participating in synchronization through internal variables.
+  The interface will occupy 64B (0x6000000000 ~ 0x6000000000 + 0x40) of the data before the cross section as the lock space. Users need to avoid this space when using this interface to prevent unpredictable errors.
 -
  name: athread_master_sync
  header: athread.h
  tags: [MPE]
  cates: [Athread]
  desc: |
-  核组间同步。
-  调用该接口前，必须先调用athread_task_info来初始化__cgid和__cgnum，通过内部变量来通知参与同步的核组的个数。
-  该接口会占有交叉段前64B（0x6000000000~0x6000000000+0x40）的数据作为锁空间，用户在使用该接口时需要注意避开该空间，防止不可预测的错误出现。
+  Synchronization between core groups.
+  Before calling this interface, you must first call athread_task_info to initialize __cgid and __cgnum, and notify the number of core groups participating in synchronization through internal variables.
+  The interface will occupy 64B (0x6000000000 ~ 0x6000000000 + 0x40) of the data before the cross section as the lock space. Users need to avoid this space when using this interface to prevent unpredictable errors.
 
 -
  name: athread_get_id
@@ -496,79 +496,79 @@
  tags: [CPE]
  cates: [Athread]
  desc: |
-  使用该函数获得本地单线程的逻辑标识号(即ID号)。该接口主从核通用。
-  只要当线程是被用athread_create创建单线程接口启动的线程才会有绑定的标识符。
+  Use this function to obtain the logical identification number (ie ID number) of the local single thread. This interface is common to the master and slave cores.
+  As long as the thread is started with athread_create to create a single-threaded interface, there will be a bound identifier.
  params:
  -
-  int core: 指定查询物理核号，-1默认本地从核(从核接口有效)。
+  int core: Specifies to query the physical core number, -1 default local slave core (the slave core interface is valid).
  -
   return int: |
-   成功：线程逻辑ID号(0<=ret<=63)。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get_id将失败，并返回相应的值。
-   -EINVAL：返回失败，出现异常。
+   Success: the logical ID number of the thread (0 <= ret <= 63).
+   Failure: Any other return value indicates an error. If any of the following conditions are monitored, athread_get_id will fail and return the corresponding value.
+   -EINVAL: Return failed with an exception.
  eg: |
-  int myid；
-  myid = athread_get_id(-1);
+  int myid;
+  myid = athread_get_id (-1);
 -
  name: athread_get_core
  header: slave.h
  tags: [CPE]
  cates: [Athread]
  desc: |
-  使用该接口获得对应线程的物理从核号。该接口主从核通用。
-  返回值低6位有效，低3位为列号，高3位为行号，分别表示核组8*8阵列。
+  Use this interface to obtain the physical slave core number of the corresponding thread. This interface is common to the master and slave cores.
+  The lower 6 digits of the return value are valid, the lower 3 digits are the column number, and the upper 3 digits are the row number, which respectively represent the core group 8 * 8 array.
  params:
  -
-  int id: 指定查询线程号，-1默认本地线程(从核接口有效)。
+  int id: Specify the query thread number, -1 default local thread (valid from the core interface)
  -
   return int: |
-   成功：线程所占从核物理号(0<=ret<=63)。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get_core将失败，并返回相应的值。
-   -EINVAL：返回失败，出现异常。
+   Success: The physical core number occupied by the thread (0 <= ret <= 63).
+   Failure: Any other return value indicates an error. If any of the following conditions are monitored, athread_get_core will fail and return the corresponding value.
+   -EINVAL: Return failed with an exception.
  eg: |
-  int mycore；
-  mycore = athread_get_core(-1);
+  int mycore;
+  mycore = athread_get_core (-1);
 -
  name: athread_sigqueue
  header: slave.h
  tags: [CPE]
  cates: [Athread]
  desc: |
-  从核给主核发送携带消息异步中断，中断发出后，从核并不等待主核是否接收到中断并完成中断处理函数，而是继续执行后续的从核代码。
+  The slave core sends an asynchronous interrupt carrying a message to the master core. After the interrupt is issued, the slave core does not wait for the master core to receive the interrupt and complete the interrupt processing function, but continues to execute subsequent slave core code.
  params:
  -
-  int pid: 主进程，用0表示
+  int pid: main process, represented by 0
  -
-  int signo: 中断号
+  int signo: break number
  -
-  const union sigval value: 中断消息
+  const union sigval value: interrupt message
  -
   return int: |
-   成功：返回0；
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_sigqueue ()将失败，并返回相应的值。
-   -EINVAL：signo无效，或者发送消息失败。
+   Success: return 0;
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_sigqueue () will fail and return the corresponding value.
+   -EINVAL: signo is invalid, or sending a message fails.
  eg: |
-  如何正确挂载一个中断处理函数：
-  假设主从核约定当从核发出一个SW3_SIGMAX-1的信号的时候，则主核调用中断处理函数x_handler。
-  从核程序：
-  a=1234567890；
-  fun()
+  How to properly mount an interrupt handler function:
+  Assuming that the master-slave core agrees that when the slave core sends a SW3_SIGMAX-1 signal, the master core calls the interrupt handler x_handler.
+  From the nuclear program:
+  a = 1234567890;
+  fun ()
   {
-    //将中断信号SW3_SIGMAX-1
-    //以及中断携带信息&a发给主进程。
-    athread_sigqueue(0，SW3_SIGMAX-1，&a)
+    // The interrupt signal SW3_SIGMAX-1
+    // And interrupt carrying information & a sent to the main process.
+    athread_sigqueue (0, SW3_SIGMAX-1, & a)
   }
-  主核程序：
-    x_handler(int sig, siginfo_t *sinfo, struct sigcontext *sigcontext)
+  Main nuclear program:
+    x_handler (int sig, siginfo_t * sinfo, struct sigcontext * sigcontext)
   {
     union sigval sv;
-    printf("x_handler begin !\n");
-    //sv==从核中断携带信息&a
-    sv = sinfo->si_value;
+    printf ("x_handler begin! \ n");
+    // sv == Carry information from nuclear interrupt & a
+    sv = sinfo-> si_value;
   }
-  main()
+  main ()
   {
-    athread_signal(SW3_SIGMAX-1，x_handler); //和signal函数用法一致
+    athread_signal (SW3_SIGMAX-1, x_handler); // Consistent with usage of signal
   }
 -
  name: athread_sigsend
@@ -576,141 +576,141 @@
  tags: [CPE]
  cates: [Athread]
  desc: |
-  从核给主核发送携带消息同步中断，中断发出后，从核等待主核接收到中断直到完成中断处理函数后才能继续执行后序从核代码。
+  The slave core sends a message-carrying synchronous interrupt to the master core. After the interrupt is issued, the slave core waits for the master core to receive the interrupt until it completes the interrupt processing function and can continue to execute the subsequent slave core code.
  params:
  -
-  int pid: 主进程，用0表示
+  int pid: main process, represented by 0
  -
-  int signo: 中断号
+  int signo: break number
  -
-  const union sigval value: 中断消息
+  const union sigval value: interrupt message
  -
   return int: |
-   成功：返回0；
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_sigsend ()将失败，并返回相应的值。
-   -EINVAL：signo无效，或者发送消息失败。
+   Success: return 0;
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_sigsend () will fail and return the corresponding value.
+   -EINVAL: signo is invalid, or sending a message fails.
  eg: |
-  参考athread_sigqueue说明。
+  Refer to the description of athread_sigqueue.
 -
  name: athread_get
  header: slave.h
  tags: [CPE]
  cates: [Athread]
  desc: |
-  从核局存LDM接收主存MEM数据，进行主存MEM到从核LDM的数据get操作，将MEM的数据get到LDM指定位置。传输模式由mode指定，如果是在广播模式和广播行模式下，要进行屏蔽寄存器配置；在其它模式下，mask值无效。
+  The LDM from the core office receives the data of the main memory MEM, performs the data get operation from the main memory MEM to the slave core LDM, and gets the data of the MEM to the designated location of the LDM. The transmission mode is specified by mode. If it is in broadcast mode and broadcast line mode, mask register configuration is required; in other modes, the mask value is invalid.
 
  params:
  -
-  dma_mode mode: DMA传输命令模式；
+  dma_mode mode: DMA transfer command mode;
  -
-  void* src: DMA传输主存源地址；
+  void * src: DMA transfer main memory source address;
  -
-  void* dest: DMA传输本地局存目标地址；
+  void * dest: DMA transfer local local storage target address;
  -
-  int len: DMA传输数据量，以字节为单位；
+  int len: the amount of DMA transfer data, in bytes;
  -
-  void* reply: DMA传输回答字地址，必须为局存地址，地址4B对界；
+  void * reply: DMA transfer reply word address, which must be the local storage address, address 4B is delimited;
  -
-  char mask: DMA传输广播有效向量，有效粒度为核组中一行，某位为1表示对应的行传输有效，作用于广播模式和广播行模式；
+  char mask: DMA transmission broadcast effective vector, the effective granularity is one line in the core group, and a bit of 1 indicates that the corresponding line transmission is effective, which acts on the broadcast mode and the broadcast line mode;
  -
-  int stride: 主存跨步，以字节为单位；
+  int stride: main memory strides, in bytes;
  -
-  int bsize: 行集合模式下，必须配置，用于指示在每个从核上的数据粒度大小；其它模式下，在DMA跨步传输时有效，表示DMA传输的跨步向量块大小，以字节为单位。
+  int bsize: In line set mode, it must be configured to indicate the size of the data granularity on each slave core; in other modes, it is effective in DMA stride transfer, indicating the size of the DMA transfer stride vector block, in bytes For the unit.
  -
   return int: |
-   成功：返回0。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get将失败，并返回相应的值。
-   -EINVAL：返回失败，出现异常。
+   Success: 0 is returned.
+   Failure: Any other return value indicates an error. If any of the following conditions are monitored, athread_get will fail and return the corresponding value.
+   -EINVAL: Return failed with an exception.
  eg: |
-  __thread_local long  ldm_a[64];
-  __thread long  mem_b[64];
-  __thread_local  int reply=0;
-  athread_get(PE_MODE,mem_a,ldm_a,64*8,&reply,0,0,0);
-  //以单从核模式，从核私有连续段以mem_a为基地址取64*8B数据放入从核局存以ldm_a为基地址的连续64*8B的空间中，其中广播向量、主存跨步、向量块大小均为0。
+  __thread_local long ldm_a [64];
+  __thread long mem_b [64];
+  __thread_local int reply = 0;
+  athread_get (PE_MODE, mem_a, ldm_a, 64 * 8, & reply, 0,0,0);
+  // In single-slave core mode, the private continuous segment of the slave core uses mem_a as the base address to take 64 * 8B data into the continuous 64 * 8B space with the ldm_a as the base address from the core office, where the broadcast vector and the main memory span The step and vector block sizes are both 0.
 -
  name: athread_put
  header: slave.h
  tags: [CPE]
  cates: [Athread]
  desc: |
-  从核局存LDM往主存MEM发送数据，进行从核LDM到主存MEM的数据put操作，将LDM的数据put到MEM指定的位置。传输模式由mode指定，不支持广播模式和广播行模式。
-  DMA传输命令模式参考athread_get接口附加说明。
+  Send data from the core LDM to the main memory MEM, perform a data put operation from the core LDM to the main memory MEM, and put the LDM data to the location specified by the MEM. The transmission mode is specified by mode and does not support broadcast mode and broadcast line mode.
+  For the DMA transfer command mode, refer to the additional description of the athread_get interface
  params:
  -
-  dma_mode mode: DMA传输命令模式；
+  dma_mode mode: DMA transfer command mode;
  -
-  void* src: DMA传输局存源地址；
+  void * src: DMA transfer local storage source address;
  -
-  void* dest: DMA传输主存目的地址；
+  void * dest: DMA transfer main storage destination address;
  -
-  int len: DMA传输数据量，以字节为单位；
+  int len: the amount of DMA transfer data, in bytes;
  -
-  void* reply: DMA传输回答字地址，必须为局存地址，地址4B对界；
+  void * reply: DMA transfer reply word address, which must be the local storage address, address 4B is delimited;
  -
-  int stride: 主存跨步，以字节为单位；
+  int stride: main memory strides, in bytes;
  -
-  int bsize: 行集合模式下，必须配置，用于指示在每个从核上的数据粒度大小；其它模式下，在DMA跨步传输时有效，表示DMA传输的跨步向量块大小，以字节为单位。
+  int bsize: In line set mode, it must be configured to indicate the size of the data granularity on each slave core; in other modes, it is effective in DMA stride transfer, indicating the size of the DMA transfer stride vector block, in bytes For the unit.
  -
   return int: |
-   成功：返回0。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_put将失败，并返回相应的值。
-   -EINVAL：返回失败，出现异常。
+   Success: 0 is returned.
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_put will fail and return the corresponding value.
+   -EINVAL: Return failed with an exception.
 -
  name: athread_get_p
  header: slave.h
  tags: [CPE]
  cates: [Athread]
  desc: |
-  物理地址数据接收，除源主存地址为物理地址外，其它使用方式与athread_get一致
+  Physical address data reception, except that the source main storage address is a physical address, other usage methods are consistent with athread_get
  params:
  -
-  dma_mode mode: DMA传输命令模式；
+  dma_mode mode: DMA transfer command mode;
  -
-  void* src: DMA传输主存源地址；
+  void * src: DMA transfer main memory source address;
  -
-  void* dest: DMA传输本地局存目标地址；
+  void * dest: DMA transfer local local storage target address;
  -
-  int len: DMA传输数据量，以字节为单位；
+  int len: the amount of DMA transfer data, in bytes;
  -
-  void* reply: DMA传输回答字地址，必须为局存地址，地址4B对界；
+  void * reply: DMA transfer reply word address, which must be the local storage address, address 4B is delimited;
  -
-  char mask: DMA传输广播有效向量，有效粒度为核组中一行，某位为1表示对应的行传输有效，作用于广播模式和广播行模式；
+  char mask: DMA transmission broadcast effective vector, the effective granularity is one line in the core group, and a bit of 1 indicates that the corresponding line transmission is effective, which acts on the broadcast mode and the broadcast line mode;
  -
-  int stride: 主存跨步，以字节为单位；
+  int stride: main memory strides, in bytes;
  -
-  int bsize: 行集合模式下，必须配置，用于指示在每个从核上的数据粒度大小；其它模式下，在DMA跨步传输时有效，表示DMA传输的跨步向量块大小，以字节为单位。
+  int bsize: In line set mode, it must be configured to indicate the size of the data granularity on each slave core; in other modes, it is effective in DMA stride transfer, indicating the size of the DMA transfer stride vector block, in bytes For the unit.
  -
   return int: |
-   成功：返回0。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_get将失败，并返回相应的值。
-   -EINVAL：返回失败，出现异常。
+   Success: 0 is returned.
+   Failure: Any other return value indicates an error. If any of the following conditions are monitored, athread_get will fail and return the corresponding value.
+   -EINVAL: Return failed with an exception.
 -
  name: athread_put_p
  header: slave.h
  tags: [CPE]
  cates: [Athread]
  desc: |
-  物理地址数据发送，除目的主存地址为物理地址外，其它使用方式与athread_put一致
+  The physical address data is sent. Except that the destination main storage address is a physical address, other usage methods are the same as athread_put
  params:
  -
-  dma_mode mode: DMA传输命令模式；
+  dma_mode mode: DMA transfer command mode;
  -
-  void* src: DMA传输局存源地址；
+  void * src: DMA transfer local storage source address;
  -
-  void* dest: DMA传输主存目的地址；
+  void * dest: DMA transfer main storage destination address;
  -
-  int len: DMA传输数据量，以字节为单位；
+  int len: the amount of DMA transfer data, in bytes;
  -
-  void* reply: DMA传输回答字地址，必须为局存地址，地址4B对界；
+  void * reply: DMA transfer reply word address, which must be the local storage address, address 4B is delimited;
  -
-  int stride: 主存跨步，以字节为单位；
+  int stride: main memory strides, in bytes;
  -
-  int bsize: 行集合模式下，必须配置，用于指示在每个从核上的数据粒度大小；其它模式下，在DMA跨步传输时有效，表示DMA传输的跨步向量块大小，以字节为单位。
+  int bsize: In line set mode, it must be configured to indicate the size of the data granularity on each slave core; in other modes, it is effective in DMA stride transfer, indicating the size of the DMA transfer stride vector block, in bytes For the unit.
  -
   return int: |
-   成功：返回0。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_put将失败，并返回相应的值。
-   -EINVAL：返回失败，出现异常。
+   Success: 0 is returned.
+   Failure: Any other return value indicates an error. If any of the following conditions are detected, athread_put will fail and return the corresponding value.
+   -EINVAL: Return failed with an exception.
 
 -
  name: athread_dma_barrier
@@ -718,44 +718,44 @@
  tags: [CPE]
  cates: [Athread]
  desc: |
-  发起dma栏栅，对应dma命令操作码为barrier_group
+  Initiate dma fence, the corresponding dma command opcode is barrier_group
 -
  name: scope
  params:
  -
-  enum ROW_SCOPE: 行同步，低8位有效
+  enum ROW_SCOPE: row synchronization, the lower 8 bits are valid
  -
-  enum COL_SCOPE: 列同步，低8位有效
+  enum COL_SCOPE: column synchronization, the lower 8 bits are valid
  -
-  enum ARRAY_SCOPE: 全核组同步，低16位有效，其中16位中低8位为列同步屏蔽码、高8位为行同步屏蔽码
+  enum ARRAY_SCOPE: full core group synchronization, the lower 16 bits are effective, of which the lower 8 bits of 16 bits are column synchronization mask codes and the upper 8 bits are row synchronization mask codes
  -
   return enum:
  desc:
-  athread_syn的同步域。
+  The synchronization domain of athread_syn.
 -
  name: athread_syn
  header: slave.h
  tags: [CPE]
  cates: [Athread]
  desc: |
-  核组内从核同步控制。
+  The slave cores are controlled synchronously within the core group.
  params:
  -
-  scope scp: 同步范围控制
+  scope scp: synchronization scope control
  -
-  int mask: 同步屏蔽码
+  int mask: synchronous mask code
  -
   return int: |
-   成功：返回0。
-   失败：其它任何返回值都表示出现了错，如果监测到以下任一情况，athread_syn将失败，并返回相应的值。
-   -EINVAL：返回失败，出现异常。
+   Success: 0 is returned.
+   Failure: Any other return value indicates an error. If any of the following conditions are monitored, athread_syn will fail and return the corresponding value.
+   -EINVAL: Return failed with an exception.
 -
  name: get_allocatable_size
  header: slave.h
  tags: [CPE]
  cates: [LDM Malloc]
  desc: |
-  得到当前可动态分配的LDM空间大小，也即局存动态分配运行时库管理的LDM空间大小
+  Get the current size of the LDM space that can be dynamically allocated, that is, the size of the LDM space managed by the local storage dynamic allocation runtime library
  params:
  -
   return size_t:
@@ -765,58 +765,58 @@
  tags: [CPE]
  cates: [LDM Malloc]
  desc: |
-  局存空间申请。
+  Local storage space application.
  params:
  -
-  size_t size: 以字节为单位的空间大小
+  size_t size: size of space in bytes
  -
-  return void*: |
-   成功返回分配LDM空间的起始地址；
-   失败返回NULL；
+  return void *: |
+   Successfully returned the starting address of the allocated LDM space;
+   Failure to return NULL;
 -
  name: ldm_free
  header: slave.h
  tags: [CPE]
  cates: [LDM Malloc]
  desc: |
-  局存空间释放，释放空间起始地址为addr。
+  The local storage space is released, and the starting address of the free space is addr.
  params:
  -
-  void* addr: 必须是前面某一次ldm_malloc返回的分配成功的局存地址；
+  void * addr: It must be the local storage address returned by ldm_malloc in a previous successful allocation;
  -
-  size_t size: 显示指定释放空间的大小，一般必须与前面某一次ldm_malloc的大小相匹配
+  size_t size: Shows the size of the specified free space, generally must match the size of ldm_malloc in the previous one
 -
  name: dma_mode
  params:
  -
-  enum PE_MODE: 单从核模式
+  enum PE_MODE: single slave core mode
  -
-  enum BCAST_MODE: 广播模式
+  enum BCAST_MODE: broadcast mode
  -
-  enum ROW_MODE: 行模式
+  enum ROW_MODE: row mode
  -
-  enum BROW_MODE: 广播行模式
+  enum BROW_MODE: broadcast line mode
  -
-  enum RANK_MODE: 行集合模式
+  enum RANK_MODE: row collection mode
  -
   return enum:
- desc: 数据DMA中使用的DMA的命令模式。
+ desc: DMA command mode used in data DMA.
 -
  name: dma_op
  params:
  -
-  enum DMA_PUT: 从核向主存存放数据
+  enum DMA_PUT: store data from core to main memory
  -
-  enum DMA_GET: 从核从主存获取数据
+  enum DMA_GET: get data from main memory from core
  -
-  enum DMA_PUT_P: 从核向主存存放数据（物理地址）
+  enum DMA_PUT_P: store data from core to main memory (physical address)
  -
-  enum DMA_GET_P: 从核从主存获取数据（物理地址）
+  enum DMA_GET_P: get data from core from main memory (physical address)
  -
-  enum DMA_BARRIER: DMA栏栅
+  enum DMA_BARRIER: DMA fence
  -
   return enum:
- desc: DMA操作类型。
+ desc: DMA operation type.
 -
  name: dma_set_size
  header: dma.h
@@ -824,16 +824,16 @@
  cates: [DMA]
  params:
  -
-  dma_desc* dma_d:
+  dma_desc * dma_d:
  -
   int size:
  -
   return void:
  desc: |
-  设置dma描述符的数据传输量属性。
-  数据传输量
+  Set the data transmission attribute of the dma descriptor.
+  Data transfer volume
  eg: |
-  dma_set_size(dma_d，256);
+  dma_set_size (dma_d, 256);
 -
  name: dma_set_reply
  header: dma.h
@@ -841,16 +841,16 @@
  cates: [DMA]
  params:
  -
-  dma_desc* dma_d:
+  dma_desc * dma_d:
  -
-  int* reply:
+  int * reply:
  -
   return void:
  desc: |
-  设置dma描述符的回答字属性。
+  Set the answer word attribute of the dma descriptor.
  eg: |
-  __thread_local reply；
-  dma_set_reply(dma_d, &reply);
+  __thread_local reply;
+  dma_set_reply (dma_d, & reply);
 -
  name: dma_set_op
  header: dma.h
@@ -858,15 +858,15 @@
  cates: [DMA]
  params:
  -
-  dma_desc* dma_d:
+  dma_desc * dma_d:
  -
   dma_op op:
  -
   return void:
  desc: |
-  设置dma描述符的dma操作属性。
+  Set the dma operation attribute of the dma descriptor.
  eg: |
-  dma_set_op(dma_d, DMA_PUT);
+  dma_set_op (dma_d, DMA_PUT);
 -
  name: dma_set_mode
  header: dma.h
@@ -874,14 +874,14 @@
  cates: [DMA]
  params:
  -
-  dma_desc* dma_d:
+  dma_desc * dma_d:
  -
   dma_mode mode:
  -
   return void:
- desc: 设置dma描述符的dma模式属性。
+ desc: Set the dma mode attribute of the dma descriptor.
  eg: |
-  dma_set_op(dma_d, PE_MODE);
+  dma_set_op (dma_d, PE_MODE);
 -
  name: dma_set_mask
  header: dma.h
@@ -889,16 +889,16 @@
  cates: [DMA]
  params:
  -
-  dma_desc* dma_d:
+  dma_desc * dma_d:
  -
   int mask:
  -
   return void:
  desc: |
-  设置dma描述符的屏蔽码属性。
-  只用于广播和广播行模式
+  Set the mask code attribute of the dma descriptor.
+  Only for broadcast and broadcast line mode
  eg: |
-  dma_set_mask(dma_d, 1);
+  dma_set_mask (dma_d, 1);
 -
  name: dma_set_bsize
  header: dma.h
@@ -906,18 +906,18 @@
  cates: [DMA]
  params:
  -
-  dma_desc* dma_d:
+  dma_desc * dma_d:
  -
   int bsize:
  -
   return void:
  desc: |
-  设置dma描述符的跨步向量块大小属性。
-  只用于跨步模式以及行集合模式；
-  广播模式下的对界（TODO）
-  行集合模式下bsize是传输到每个从核上的块大小。
+  Set the dma descriptor's stride vector block size attribute.
+  Only used in stride mode and row collection mode;
+  TODO in broadcast mode
+  In row set mode, bsize is the block size transferred to each slave core.
  eg: |
-  dma_set_bsize(dma_d, 0x32);
+  dma_set_bsize (dma_d, 0x32);
 -
  name: dma_set_stepsize
  header: dma.h
@@ -925,15 +925,15 @@
  cates: [DMA]
  params:
  -
-  dma_desc* dma_d:
+  dma_desc * dma_d:
  -
   int length:
  desc: |
-  设置dma描述符的主存跨步长度属性。
-  只用于跨步模式以及行集合模式；
-  广播模式下的对界（TODO）
+  Set the main memory stride length attribute of the dma descriptor.
+  Only used in stride mode and row collection mode;
+  TODO in broadcast mode
  eg: |
-  dma_set_stepsize(dma_d, 0x128);
+  dma_set_stepsize (dma_d, 0x128);
 -
  name: dma
  header: dma.h
@@ -948,7 +948,7 @@
   long ldm:
  inst: dma
  desc: |
-  根据参数指定的dma描述符、主存起始地址和局存起始地址，发起dma；
+  Initiate dma according to the dma descriptor, main storage start address and local storage start address specified by the parameters
 -
  name: dma_wait
  header: dma.h
@@ -956,11 +956,11 @@
  cates: [DMA]
  params:
  -
-  int* reply:
+  int * reply:
  -
   int count:
  desc:
-   根据参数指定的回答字地址等待，直到回答字的值等于count
+   Wait according to the address of the answer word specified by the parameter until the value of the answer word is equal to count
 -
  name: dma_barrier
  header: dma.h
@@ -968,17 +968,17 @@
  cates: [DMA]
  inst: dma
  desc:
-  发起本从核的dma栏栅
+  Initiate the dma fence of this slave core
 -
  name: simd_load
  desc: |
-  扩展类型的装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
-  装入的内存地址必须32字节对界。
+  For extended type loading, 32 bytes (floatv4 type loading is 16 bytes) of data is loaded into a vector variable from the continuous memory area.
+  The memory address loaded must be 32 bytes aligned.
  params:
  -
-  intv8 va: 结果存储在va中
+  intv8 va: the result is stored in va
  -
-  int* addr: 要装入的地址
+  int * addr: address to be loaded
  cates: [SIMD, SIMD-load, SIMD-int]
  tags: [CPE, MPE]
  header: simd.h
@@ -986,13 +986,13 @@
 -
  name: simd_load
  desc: |
-  扩展类型的装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
-  装入的内存地址必须32字节对界。
+  For extended type loading, 32 bytes (floatv4 type loading is 16 bytes) of data is loaded into a vector variable from the continuous memory area.
+  The memory address loaded must be 32 bytes aligned.
  params:
  -
-  doublev4 va: 结果存储在va中
+  doublev4 va: the result is stored in va
  -
-  double* addr: 要装入的地址
+  double * addr: address to be loaded
  cates: [SIMD, SIMD-load, SIMD-dp]
  tags: [CPE, MPE]
  header: simd.h
@@ -1000,13 +1000,13 @@
 -
  name: simd_load
  desc: |
-  扩展类型的装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
-  装入的内存地址必须16字节对界。
+  For extended type loading, 32 bytes (floatv4 type loading is 16 bytes) of data is loaded into a vector variable from the continuous memory area.
+  The loaded memory address must be 16 bytes aligned.
  params:
  -
-  floatv4 va: 结果存储在va中
+  floatv4 va: The result is stored in va
  -
-  float* addr: 要装入的地址
+  float * addr: address to be loaded
  cates: [SIMD, SIMD-load, SIMD-sp]
  tags: [CPE, MPE]
  header: simd.h
@@ -1014,12 +1014,12 @@
 -
  name: simd_loade
  desc: |
-  扩展类型的装入并扩展，将8字节（floatv4类型的装入是4字节）长度的数据从连续内存区域中装入到一个向量变量的低64位，并且将该数据扩展到高192位，使向量寄存器的四个寄存器具有相同的值。intv8是取出4字节，然后扩展成8个分量。
+  Load and expand the extended type, load 8-byte (floatv4 type load is 4 bytes) data from the continuous memory area into the lower 64 bits of a vector variable, and expand the data to the upper 192 Bit, so that the four registers of the vector register have the same value. intv8 takes 4 bytes and then expands into 8 components.
  params:
  -
-  intv8 va: 结果存储在va中
+  intv8 va: the result is stored in va
  -
-  int* addr: 要装入的地址
+  int * addr: address to be loaded
  inst: ldwe
  header: simd.h
  tags: [CPE, MPE]
@@ -1027,12 +1027,12 @@
 -
  name: simd_loade
  desc: |
-  扩展类型的装入并扩展，将8字节（floatv4类型的装入是4字节）长度的数据从连续内存区域中装入到一个向量变量的低64位，并且将该数据扩展到高192位，使向量寄存器的四个寄存器具有相同的值。intv8是取出4字节，然后扩展成8个分量。
+  Load and expand the extended type, load 8-byte (floatv4 type load is 4 bytes) data from the continuous memory area into the lower 64 bits of a vector variable, and expand the data to the upper 192 Bit, so that the four registers of the vector register have the same value. intv8 takes 4 bytes and then expands into 8 components.
  params:
  -
-  doublev4 va: 结果存储在va中
+  doublev4 va: the result is stored in va
  -
-  double* addr: 要装入的地址
+  double * addr: address to be loaded
  inst: ldde
  header: simd.h
  tags: [CPE, MPE]
@@ -1040,12 +1040,12 @@
 -
  name: simd_loade
  desc: |
-  扩展类型的装入并扩展，将8字节（floatv4类型的装入是4字节）长度的数据从连续内存区域中装入到一个向量变量的低64位，并且将该数据扩展到高192位，使向量寄存器的四个寄存器具有相同的值。intv8是取出4字节，然后扩展成8个分量。
+  Load and expand the extended type, load 8-byte (floatv4 type load is 4 bytes) data from the continuous memory area into the lower 64 bits of a vector variable, and expand the data to the upper 192 Bit, so that the four registers of the vector register have the same value. intv8 takes 4 bytes and then expands into 8 components.
  params:
  -
-  floatv4 va: 结果存储在va中
+  floatv4 va: The result is stored in va
  -
-  float* addr: 要装入的地址
+  float * addr: address to be loaded
  inst: ldse
  header: simd.h
  tags: [CPE, MPE]
@@ -1053,12 +1053,12 @@
 -
  name: simd_store
  desc: |
-  扩展类型的存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。 
+  Extended type storage, the data in a vector variable is stored in a continuous memory area of ​​32 bytes (floatv4 type load is 16 bytes).
  params:
  -
-  intv8 va: 要存储的向量
+  intv8 va: vector to be stored
  -
-  int* addr: 存储到的地址
+  int * addr: stored address
  inst: vstw
  header: simd.h
  tags: [CPE, MPE]
@@ -1066,12 +1066,12 @@
 -
  name: simd_store
  desc: |
-  扩展类型的存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。 
+  Extended type storage, the data in a vector variable is stored in a continuous memory area of ​​32 bytes (floatv4 type load is 16 bytes).
  params:
  -
-  doublev4 va: 要存储的向量
+  doublev4 va: vector to be stored
  -
-  double* addr: 存储到的地址
+  double * addr: stored address
  inst: vstd
  header: simd.h
  tags: [CPE, MPE]
@@ -1079,12 +1079,12 @@
 -
  name: simd_store
  desc: |
-  扩展类型的存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。 
+  Extended type storage, the data in a vector variable is stored in a continuous memory area of ​​32 bytes (floatv4 type load is 16 bytes).
  params:
  -
-  floatv4 va: 要存储的向量
+  floatv4 va: vector to be stored
  -
-  float* addr: 存储到的地址
+  float * addr: stored address
  inst: vsts
  header: simd.h
  tags: [CPE, MPE]
@@ -1092,12 +1092,12 @@
 -
  name: simd_loadu
  desc: |
-  扩展类型的不对界装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
+  Extended type of non-aligned loading, 32 bytes (floatv4 type loading is 16 bytes) length of data from a continuous memory area is loaded into a vector variable.
  params:
  -
-  intv8 va: 结果存储在va中
+  intv8 va: the result is stored in va
  -
-  int* addr: 装入的地址
+  int * addr: loaded address
  inst: vldw_ul, vldw_uh
  header: simd.h
  tags: [CPE, MPE]
@@ -1105,12 +1105,12 @@
 -
  name: simd_loadu
  desc: |
-  扩展类型的不对界装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
+  Extended type of non-aligned loading, 32 bytes (floatv4 type loading is 16 bytes) length of data from a continuous memory area into a vector variable.
  params:
  -
-  doublev4 va: 结果存储在va中
+  doublev4 va: the result is stored in va
  -
-  double* addr: 装入的地址
+  double * addr: loaded address
  inst: vldd_ul, vldd_uh
  header: simd.h
  tags: [CPE, MPE]
@@ -1118,12 +1118,12 @@
 -
  name: simd_loadu
  desc: |
-  扩展类型的不对界装入，将32字节（floatv4类型的装入是16字节）长度的数据从连续内存区域中装入到一个向量变量中。
+  Extended type of non-aligned loading, 32 bytes (floatv4 type loading is 16 bytes) length of data from a continuous memory area into a vector variable.
  params:
  -
-  floatv4 va: 结果存储在va中
+  floatv4 va: The result is stored in va
  -
-  float* addr: 装入的地址
+  float * addr: loaded address
  inst: vlds_ul, vlds_uh
  header: simd.h
  tags: [CPE, MPE]
@@ -1131,12 +1131,12 @@
 -
  name: simd_storeu
  desc: |
-  扩展类型的不对界存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。
+  The non-boundary storage of the extended type stores the data in a vector variable into a continuous memory area of ​​32 bytes (the floatv4 type is 16 bytes).
  params:
  -
-  intv8 va: 要存储的向量
+  intv8 va: vector to be stored
  -
-  int* addr: 存储到的地址
+  int * addr: stored address
  inst: vstw_ul, vstw_uh
  header: simd.h
  tags: [CPE, MPE]
@@ -1144,12 +1144,12 @@
 -
  name: simd_storeu
  desc: |
-  扩展类型的不对界存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。
+  The non-boundary storage of the extended type stores the data in a vector variable into a continuous memory area of ​​32 bytes (the floatv4 type load is 16 bytes).
  params:
  -
-  doublev4 va: 要存储的向量
+  doublev4 va: vector to be stored
  -
-  double* addr: 存储到的地址
+  double * addr: stored address
  inst: vstd_ul, vstd_uh
  header: simd.h
  tags: [CPE, MPE]
@@ -1157,12 +1157,12 @@
 -
  name: simd_storeu
  desc: |
-  扩展类型的不对界存储，将一个向量变量中的数据存储到32字节（floatv4类型的装入是16字节）连续内存区域中。
+  The non-boundary storage of the extended type stores the data in a vector variable into a continuous memory area of ​​32 bytes (the floatv4 type load is 16 bytes).
  params:
  -
-  floatv4 va: 要存储的向量
+  floatv4 va: vector to be stored
  -
-  float* addr: 存储到的地址
+  float * addr: stored address
  inst: vsts_ul, vsts_uh
  header: simd.h
  tags: [CPE, MPE]
@@ -1170,12 +1170,12 @@
 -
  name: simd_vaddw
  desc: |
-  intv8类型的加法，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b相加。可以使用“+”符号替换。
+  Intv8 type addition adds 8 int integer data types in va to 8 int integer data types or 8-bit immediate data b in vb. You can use the "+" symbol to replace.
  params:
  -
-  intv8 va: 第一个加数
+  intv8 va: the first addend
  -
-  intv8 vb: 第二个加数
+  intv8 vb: second addend
  -
   return intv8: va + vb
  inst: vaddw
@@ -1185,14 +1185,14 @@
 -
  name: simd_vsubw
  desc: |
-  intv8类型的减法，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b相减。可以使用“-”符号替换。
+  The intv8 type of subtraction subtracts the 8 int type integer data in va and the 8 int type integer data in vb or the 8-bit immediate value b. You can use the "-" symbol to replace.
  params:
  -
   intv8 va:
  -
   intv8 vb:
  -
-  return intv8: va - vb
+  return intv8: va-vb
  inst: vsubw
  header: simd.h
  tags: [CPE, MPE]
@@ -1200,7 +1200,7 @@
 -
  name: simd_vandw
  desc: |
-  intv8类型的逻辑与，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑与运算。可以使用“&”符号替换。
+  The logical AND of the intv8 type performs logical AND operation on the 8 int integer data in va and the 8 int integer data in vb or the 8-bit immediate data b, respectively. You can use the "&" symbol to replace.
  params:
  -
   intv8 va:
@@ -1208,29 +1208,29 @@
   intv8 vb:
  -
   return intv8: va & vb
- inst: vandw/vlogc0
+ inst: vandw / vlogc0
  header: simd.h
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_vbicw
  desc: |
-  intv8类型的逻辑与非，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑与非运算。可以使用“&”和“~”符号替换。
+  The logic NAND of intv8 type is to perform logic NAND operation on the 8 int integer data in va and the 8 int integer data in vb or the 8-bit immediate data b. You can use "&" and "~" symbols to replace.
  params:
  -
   intv8 va:
  -
   intv8 vb:
  -
-  return intv8: va & ~vb
- inst: vbicw/vlog30
+  return intv8: va & ~ vb
+ inst: vbicw / vlog30
  header: simd.h
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_vbisw
  desc: |
-  intv8类型的逻辑或，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑或运算。可以使用“|”符号替换。
+  The logical OR of intv8 type performs logical OR operation on the 8 int integer data in va and the 8 int integer data or 8-bit immediate data b in vb, respectively. You can use the "|" symbol to replace.
  params:
  -
   intv8 va:
@@ -1238,21 +1238,21 @@
   intv8 vb:
  -
   return intv8: va | vb
- inst: vbisw/vlogfc
+ inst: vbisw / vlogfc
  header: simd.h
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_vornotw
  desc: |
-  intv8类型的逻辑或非，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑与非运算。可以使用“|”和“~”符号替换。
+  The logical NOR of intv8 type is to perform logical NAND operation on the 8 int integer data in va and the 8 int integer data or 8-bit immediate data b in vb. You can use "|" and "~" symbols to replace.
  params:
  -
   intv8 va:
  -
   intv8 vb:
  -
-  return intv8: va | ~vb
+  return intv8: va | ~ vb
  inst: vlogf3
  header: simd.h
  tags: [CPE, MPE]
@@ -1260,7 +1260,7 @@
 -
  name: simd_vxorw
  desc: |
-  intv8类型的逻辑异或，将va中的8个int类型的整型数据分别与vb中的8个int类型的整型数据或8位立即数b进行逻辑异或运算。可以使用“^”符号替换。
+  The logical exclusive OR of intv8 type performs logical exclusive OR operation on the 8 int integer data in va and the 8 int integer data or 8-bit immediate data b in vb, respectively. You can use the "^" symbol to replace.
  params:
  -
   intv8 va:
@@ -1268,39 +1268,39 @@
   intv8 vb:
  -
   return intv8: va ^ vb
- inst: vxorw/vlog3c
+ inst: vxorw / vlog3c
  header: simd.h
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_veqvw
  desc: |
-  intv8类型的逻辑等效，将va中的8个int类型的整型数据和vb中的8个int类型的整型数据或8位立即数b分别对应按位逻辑等效（同或），结果保存到返回值中。
+  The logical equivalent of the intv8 type, the 8 int type integer data in va and the 8 int type integer data in vb or the 8-bit immediate data b corresponding to the bit-wise logical equivalent (same or) Save to return value.
  params:
  -
   intv8 va:
  -
   intv8 vb:
  -
-  return intv8: ~(va ^ vb)
- inst: veqvw/vlogc3
+  return intv8: ~ (va ^ vb)
+ inst: veqvw / vlogc3
  header: simd.h
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-logical, SIMD-int]
 -
  name: simd_vsllw
  desc: |
-  intv8类型的逻辑左移，将va中的8个int类型的整型数据进行逻辑左移，移出的空位用“0”补充，四个数移位的位数相同，由b中的最低5位或者立即数决定。可以使用“<<”符号替换。
+  Intv8 type logical left shift, logically shift the 8 int type integer data in va, the vacant bits removed are supplemented with "0", the number of shifted digits of the four numbers is the same, the lowest 5 bits in b Or decide immediately. You can use the "<<" symbol to replace.
  params:
  -
   intv8 va:
  -
-  int b: 
+  int b:
  -
   return intv8: va << b
  op: |
-  for (i = 0; i < 8; i ++)
-    vc[i] = va[i] << b;
+  for (i = 0; i <8; i ++)
+    vc [i] = va [i] << b;
   return vc;
  inst: vsllw
  header: simd.h
@@ -1309,17 +1309,17 @@
 -
  name: simd_vsrlw
  desc: |
-  intv8类型的逻辑右移，将va中的8个int类型的整型数据进行逻辑右移，移出的空位用“0”补充，四个数移位的位数相同，由b中的最低5位或者5位立即数决定。可以使用“>>”符号替换。使用“>>”符号的时候，如果操作数是有符号的，生成vsraw指令，如果是无符号的，生成vsrlw指令。
+  Logic right shift of intv8 type, logical shift right of 8 int integer data in va, the vacant bits removed are supplemented by "0", the number of shifts of the four numbers is the same, and the lowest 5 bits in b Or a 5-digit immediate decision. You can use the ">>" symbol to replace. When using the ">>" symbol, if the operand is signed, the vsraw instruction is generated, if it is unsigned, the vsrlw instruction is generated.
  params:
  -
   intv8 va:
  -
-  int b: 
+  int b:
  -
   return intv8: va >>> b
  op: |
-  for (i = 0; i < 8; i ++)
-    vc[i] = va[i] >>> b; //vc[i] = ((unsigned int)va[i]) >> b;
+  for (i = 0; i <8; i ++)
+    vc [i] = va [i] >>> b; // vc [i] = ((unsigned int) va [i]) >> b;
   return vc;
  inst: vsrlw
  header: simd.h
@@ -1328,17 +1328,17 @@
 -
  name: simd_vsraw
  desc: |
-  intv8类型的算术右移，将va中的8个int类型的整型数据进行逻辑右移，移出的空位用原符号位补充，四个数移位的位数相同，由b中的最低5位或者5位立即数决定。可以使用“>>”符号替换。使用“>>”符号的时候，如果操作数是有符号的，生成vsraw指令，如果是无符号的，生成vsrlw指令。
+  Intv8 type arithmetic right shift, logically shift the 8 int type integer data in va, the vacated bits are supplemented with the original sign bit, the number of shifts of the four numbers is the same, the lowest 5 bits in b Or a 5-digit immediate decision. You can use the ">>" symbol to replace. When using the ">>" symbol, if the operand is signed, the vsraw instruction is generated, if it is unsigned, the vsrlw instruction is generated.
  params:
  -
   intv8 va:
  -
-  int b: 
+  int b:
  -
   return intv8: va >> b
  op: |
-  for (i = 0; i < 8; i ++)
-    vc[i] = va[i] >> b;
+  for (i = 0; i <8; i ++)
+    vc [i] = va [i] >> b;
   return vc;
  inst: vsraw
  header: simd.h
@@ -1356,13 +1356,13 @@
  -
   return intv8: va == vb
  desc: |
-  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行等于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+  Perform an equal comparison operation on the 8 32-bit word integer vector elements in Va and the corresponding 8 32-bit word integer vector elements in Vb (or 8-bit immediate #b), if the specified relationship is satisfied, the corresponding in Vc The word element is "1", otherwise it is "0".
  op: |
-  for (i = 0; i < 8; i ++)
-    if ((int)va[i] == (int)vb[i])
-      vc[i] = 1;
+  for (i = 0; i <8; i ++)
+    if ((int) va [i] == (int) vb [i])
+      vc [i] = 1;
     else
-      vc[i] = 0;
+      vc [i] = 0;
   return vc;
  tags: [MPE]
  cates: [SIMD, SIMD-arith, SIMD-int]
@@ -1378,13 +1378,13 @@
  -
   return intv8: a <= b
  desc: |
-  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行小于等于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+  Perform 8 or less 32-bit word integer vector elements in Va and 8 corresponding 32-bit word integer vector elements in Vb (or 8-bit immediate number #b) respectively. The word element is "1", otherwise it is "0".
  op: |
-  for (i = 0; i < 8; i ++)
-    if ((int)va[i] <= (int)vb[i])
-      vc[i] = 1;
+  for (i = 0; i <8; i ++)
+    if ((int) va [i] <= (int) vb [i])
+      vc [i] = 1;
     else
-      vc[i] = 0;
+      vc [i] = 0;
   return vc;
 -
  name: simd_vcmpltw
@@ -1396,15 +1396,15 @@
  -
   intv8 vb:
  -
-  return intv8: va < vb
+  return intv8: va <vb
  desc: |
-  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行小于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+  The 8 32-bit word integer vector elements in Va and the 8 32-bit word integer vector elements in Vb (or 8-bit immediate number #b) are respectively less than the comparison operation. The word element is "1", otherwise it is "0".
  op: |
-  for (i = 0; i < 8; i ++)
-    if ((int)va[i] < (int)vb[i])
-      vc[i] = 1;
+  for (i = 0; i <8; i ++)
+    if ((int) va [i] <(int) vb [i])
+      vc [i] = 1;
     else
-      vc[i] = 0;
+      vc [i] = 0;
   return vc;
  tags: [MPE]
  cates: [SIMD, SIMD-arith, SIMD-int]
@@ -1420,13 +1420,13 @@
  -
   return uintv8: va <= vb
  desc: |
-  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行无符号小于等于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+  Perform unsigned less than or equal comparison operations on the 8 32-bit word integer vector elements in Va and the corresponding 8 32-bit word integer vector elements in Vb (or 8-bit immediate number # b) The corresponding word element in is "1", otherwise it is "0".
  op: |
-  for (i = 0; i < 8; i ++)
-    if ((unsigned int)va[i] <= (unsigned int)vb[i])
-      vc[i] = 1;
+  for (i = 0; i <8; i ++)
+    if ((unsigned int) va [i] <= (unsigned int) vb [i])
+      vc [i] = 1;
     else
-      vc[i] = 0;
+      vc [i] = 0;
   return vc;
  tags: [MPE]
  cates: [SIMD, SIMD-arith, SIMD-int]
@@ -1440,15 +1440,15 @@
  -
   uintv8 vb:
  -
-  return uintv8: va < vb
+  return uintv8: va <vb
  desc: |
-  对Va中8个32位的字整数向量元素和Vb中对应8个32位的字整数向量元素（或8位立即数# b）分别进行无符号小于比较运算，若满足指定关系，则Vc中对应的字元素为“1”，否则为“0”。
+  Perform unsigned less than comparison operations on the 8 32-bit word integer vector elements in Va and the corresponding 8 32-bit word integer vector elements in Vb (or 8-bit immediate #b). If the specified relationship is met, then Vc The corresponding word element is "1", otherwise it is "0".
  op: |
-  for (i = 0; i < 8; i ++)
-    if ((unsigned int)va[i] <= (unsigned int)vb[i])
-      vc[i] = 1;
+  for (i = 0; i <8; i ++)
+    if ((unsigned int) va [i] <= (unsigned int) vb [i])
+      vc [i] = 1;
     else
-      vc[i] = 0;
+      vc [i] = 0;
   return vc;
  tags: [MPE]
  cates: [SIMD, SIMD-arith, SIMD-int]
@@ -1461,12 +1461,12 @@
   intv8 va:
  -
   int b:
- return intv8: (va << b) | (va >>> 32 - b)
+ return intv8: (va << b) | (va >>> 32-b)
  desc: |
-  intv8类型的循环左移，将va中的8个int类型的整型数据进行循环左移，移出的空位用移出位补充，四个数移位的位数相同，由b的低5位或5位立即数决定。
+  Intv8 type circular left shift, the 8 int integer data in va are circular left shifted, the vacated bits are supplemented by the shifted out bits, the four digits are shifted by the same number of bits, the lower 5 bits of b or 5 The immediate number is determined.
  op: |
-  for (i = 0; i < 8; i ++)
-    vc[i] = (va[i] << b) | (va[i] >>> (32 - b));
+  for (i = 0; i <8; i ++)
+    vc [i] = (va [i] << b) | (va [i] >>> (32-b));
   return vc;
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-logical, SIMD-int]
@@ -1482,11 +1482,11 @@
  -
   return int256: va << b
  desc: |
-  将Va中256位整体左移，移出的空位用“0”填充，移位位数由b低8位或8位立即数确定，结果写入Vc中。
+  The whole 256 bits in Va are shifted to the left, and the vacated bits are filled with "0". The number of shifted bits is determined by the lower 8 bits of b or the immediate value of 8 bits.
  op: |
-  vc[0] = va[0] << b;
-  for (i = 1; i < 8; i ++)
-    vc[i] = (va[i] << b) | (va[i - 1] >>> (32 - b));
+  vc [0] = va [0] << b;
+  for (i = 1; i <8; i ++)
+    vc [i] = (va [i] << b) | (va [i-1] >>> (32-b));
   return vc;
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-logical, SIMD-int]
@@ -1502,11 +1502,11 @@
  -
   return int256: va >> b
  desc: |
-  将Va中256位整体右移，移出的空位用“0”填充，移位位数由b低8位或8位立即数确定，结果写入Vc中。
+  The whole 256 bits in Va are shifted to the right, the vacated bits are filled with "0", the number of shifts is determined by the lower 8 bits of b or the immediate value of 8 bits, and the result is written in Vc.
  op: |
-  vc[7] = va[7] >> b;
-  for (i = 0; i < 7; i ++)
-    vc[i] = (va[i] >> b) | (va[i + 1] << (32 - b));
+  vc [7] = va [7] >> b;
+  for (i = 0; i <7; i ++)
+    vc [i] = (va [i] >> b) | (va [i + 1] << (32-b));
   return vc;
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-logical, SIMD-int]
@@ -1522,11 +1522,11 @@
  -
   return int256: va + vb
  desc: |
-  将Va和Vb中4个64位长字（或8位立即数b）分别对应相加，结果保存到Vc中对应位置。
+  Add four 64-bit long words (or 8-bit immediate data b) in Va and Vb respectively, and save the result to the corresponding position in Vc.
  op: |
-  (by long[4])
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] + vb[i];
+  (by long [4])
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] + vb [i];
   return vc;
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-arith, SIMD-int]
@@ -1540,13 +1540,13 @@
  -
   int256 vb:
  -
-  return int256 : va - vb
+  return int256: va-vb
  desc: |
-  将Va和Vb中4个64位长字（或8位立即数b）分别对应相减，结果保存到Vc中对应位置。
+  Subtract 4 64-bit long words (or 8-bit immediate data b) in Va and Vb respectively, and save the result to the corresponding position in Vc.
  op: |
-  (by long[4])
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] - vb[i];
+  (by long [4])
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i]-vb [i];
   return vc;
  tags: [CPE, MPE]
  cates: [SIMD, SIMD-arith, SIMD-int]
@@ -1558,14 +1558,14 @@
  -
   int256 va:
  -
-  return int: sum(popcnt(va[i]))
+  return int: sum (popcnt (va [i]))
  desc: |
-  返回va中的256位八倍字整数中“1”的个数。
+  Returns the number of "1" s in the 256-bit octet integer in va.
  op: |
   int cnt = 0;
-  for (i = 0; i < 8; i ++){
-    for (j = 0; j < 32; j ++)
-      if ((va[i] >> j) & 1)
+  for (i = 0; i <8; i ++) {
+    for (j = 0; j <32; j ++)
+      if ((va [i] >> j) & 1)
         cnt ++;
   }
   return cnt;
@@ -1581,12 +1581,12 @@
  -
   return int:
  desc: |
-  返回Va中的256位八倍字整数从最高位起连续“0”的个数。
+  Returns the number of 256-bit octet integers in Va that are consecutive "0" from the highest bit.
  op: |
   int cnt = 0;
-  for (i = 7; i >= 0; i --)
-    for (j = 31; j >= 0; j --)
-      if ((va[i] >> j) & 1)
+  for (i = 7; i> = 0; i-)
+    for (j = 31; j> = 0; j-)
+      if ((va [i] >> j) & 1)
         cnt ++;
       else
         return cnt;
@@ -1603,17 +1603,17 @@
  -
   intv8 vb:
  -
-  return intv8: 假定va + vb的值被精确表示，max(min(va + vb, 2147483647), -2147483648)
+  return intv8: Assuming that the value of va + vb is accurately represented, max (min (va + vb, 2147483647), -2147483648)
  desc: |
-  将Va和Vb中对应的8个32位字整数（或8位立即数#b零扩展的字整数）分别进行32位的有符号加，取低32位结果保存到Vc。若结果产生上溢，则将对应的32位结果置为0x7fff,ffff；若产生下溢，则将对应的32位结果置为0x8000,0000。
+  The corresponding 8 32-bit word integers in Va and Vb (or 8-bit immediate #b zero-expanded word integers) are respectively 32-bit signed addition, and the lower 32-bit result is stored in Vc. If the result overflows, the corresponding 32-bit result is set to 0x7fff, ffff; if an underflow occurs, the corresponding 32-bit result is set to 0x8000,0000.
  op: |
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)va[i] + (long)vb[i];
-    if (tmp > 0x000000007fffffffLL)
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) va [i] + (long) vb [i];
+    if (tmp> 0x000000007fffffffLL)
       tmp = 0x000000007fffffff;
-    if (tmp < 0xffffffff80000000LL)
+    if (tmp <0xffffffff80000000LL)
       tmp = 0xffffffff80000000;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   return vc;
  tags: [MPE]
@@ -1628,17 +1628,17 @@
  -
   intv8 vb:
  -
-  return intv8: 假定va - vb的值被精确表示，max(min(va - vb, 2147483647), -2147483648)
+  return intv8: Assuming that the value of va-vb is accurately represented, max (min (va-vb, 2147483647), -2147483648)
  desc: |
-  将Va和Vb中对应的8个32位字整数（或8位立即数#b零扩展的字整数）分别进行32位的有符号减，取低32位结果保存到Vc。若结果产生上溢，则将对应的32位结果置为0x7fff,ffff；若产生下溢，则将对应的32位结果置为0x8000,0000。
- op: | 
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)va[i] - (long)vb[i];
-    if (tmp > 0x000000007fffffffLL)
+  The 8 corresponding 32-bit word integers in Va and Vb (or 8-bit immediate #b zero-expanded word integers) are respectively 32-bit signed subtraction, and the result of taking the lower 32 bits is saved to Vc. If the result overflows, the corresponding 32-bit result is set to 0x7fff, ffff; if an underflow occurs, the corresponding 32-bit result is set to 0x8000,0000.
+ op: |
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) va [i]-(long) vb [i];
+    if (tmp> 0x000000007fffffffLL)
       tmp = 0x000000007fffffff;
-    if (tmp < 0xffffffff80000000LL)
+    if (tmp <0xffffffff80000000LL)
       tmp = 0xffffffff80000000;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   return vc;
  tags: [MPE]
@@ -1653,18 +1653,18 @@
  -
   intv8 vb:
  -
-  return intv8: 假定va + vb的值被精确表示，max(min(va + vb, 65535), -65536)
+  return intv8: Assume that the value of va + vb is accurately represented, max (min (va + vb, 65535), -65536)
  desc: |
-  将Va和Vb中对应的16个16位半字整数（或8位立即数#b零扩展的半字整数）分别进行16位的有符号加，取低16位结果保存到Vc。若结果产生上溢，则将对应的16位结果置为0x7fff；若产生下溢，则将对应的16位结果置为0x8000。
+  The 16 corresponding 16-bit halfword integers (or 8-bit immediate #b zero-expanded halfword integers) in Va and Vb are respectively added with 16 bits, and the result of taking the lower 16 bits is saved in Vc. If the result overflows, the corresponding 16-bit result is set to 0x7fff; if an underflow occurs, the corresponding 16-bit result is set to 0x8000.
  op: |
-  (by short[16])
-  for (i = 0; i < 16; i ++){
-    int tmp = (int)va[i] + (int)vb[i];
-    if (tmp > 0x00007fff)
+  (by short [16])
+  for (i = 0; i <16; i ++) {
+    int tmp = (int) va [i] + (int) vb [i];
+    if (tmp> 0x00007fff)
       tmp = 0x00007fff;
-    if (tmp < 0xffff8000)
+    if (tmp <0xffff8000)
       tmp = 0xffff8000;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   return vc;
  tags: [MPE]
@@ -1679,18 +1679,18 @@
  -
   intv8 vb:
  -
-  return intv8: 假定va - vb的值被精确表示，max(min(va - vb, 65535), -65536)
+  return intv8: Assume that the value of va-vb is accurately represented, max (min (va-vb, 65535), -65536)
  desc: |
-  将Va和Vb中对应的16个16位半字整数（或8位立即数#b零扩展的半字整数）分别进行16位的有符号减，取低16位结果保存到Vc。若结果产生上溢，则将对应的16位结果置为0x7fff；若产生下溢，则将对应的16位结果置为0x8000。
+  The 16 16-bit halfword integers (or 8-bit immediate #b zero-expanded halfword integers) corresponding to Va and Vb are respectively 16-bit signed subtraction, and the lower 16-bit result is stored in Vc. If the result overflows, the corresponding 16-bit result is set to 0x7fff; if an underflow occurs, the corresponding 16-bit result is set to 0x8000.
  op: |
-  (by short[16])
-  for (i = 0; i < 16; i ++){
-    int tmp = (int)va[i] - (int)vb[i];
-    if (tmp > 0x00007fff)
+  (by short [16])
+  for (i = 0; i <16; i ++) {
+    int tmp = (int) va [i]-(int) vb [i];
+    if (tmp> 0x00007fff)
       tmp = 0x00007fff;
-    if (tmp < 0xffff8000)
+    if (tmp <0xffff8000)
       tmp = 0xffff8000;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   return vc;
  tags: [MPE]
@@ -1705,18 +1705,18 @@
  -
   intv8 vb:
  -
-  return intv8: 假定va + vb的值被精确表示，max(min(va + vb, 255), -256)
+  return intv8: Assuming that the value of va + vb is accurately represented, max (min (va + vb, 255), -256)
  desc: |
-  将Va和Vb中对应的32个8位字节整数（或8位立即数#b）分别进行8位的有符号加，取低8位结果保存到Vc。若结果产生上溢，则将对应的8位结果置为0x7f；若产生下溢，则将对应的8位结果置为0x80。
+  The corresponding 32 octet integers (or 8-bit immediate number #b) in Va and Vb are respectively added with 8 bits, and the result of taking the lower 8 bits is saved to Vc. If the result overflows, the corresponding 8-bit result is set to 0x7f; if an underflow occurs, the corresponding 8-bit result is set to 0x80.
  op: |
-  (by char[32])
-  for (i = 0; i < 32; i ++){
-    int tmp = (short)va[i] + (short)vb[i];
-    if (tmp > 0x007f)
+  (by char [32])
+  for (i = 0; i <32; i ++) {
+    int tmp = (short) va [i] + (short) vb [i];
+    if (tmp> 0x007f)
       tmp = 0x007f;
-    if (tmp < 0xff80)
+    if (tmp <0xff80)
       tmp = 0xff80;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   return vc;
  tags: [MPE]
@@ -1731,18 +1731,18 @@
  -
   intv8 vb:
  -
-  return intv8:  假定va - vb的值被精确表示，max(min(va - vb, 255), -256)
+  return intv8: Assuming that the value of va-vb is accurately represented, max (min (va-vb, 255), -256)
  desc: |
-  将Va和Vb中对应的32个8位字节整数（或8位立即数#b）分别进行8位的有符号减，取低8位结果保存到Vc。若结果产生上溢，则将对应的8位结果置为0x7f；若产生下溢，则将对应的8位结果置为0x80。
+  The corresponding 32 octet integers (or 8-bit immediate #b) in Va and Vb are respectively 8-bit signed subtraction, and the result of taking the lower 8 bits is saved to Vc. If the result overflows, the corresponding 8-bit result is set to 0x7f; if an underflow occurs, the corresponding 8-bit result is set to 0x80.
  op: |
-  (by char[32])
-  for (i = 0; i < 32; i ++){
-    int tmp = (int)va[i] - (int)vb[i];
-    if (tmp > 0x007f)
+  (by char [32])
+  for (i = 0; i <32; i ++) {
+    int tmp = (int) va [i]-(int) vb [i];
+    if (tmp> 0x007f)
       tmp = 0x007f;
-    if (tmp < 0xff80)
+    if (tmp <0xff80)
       tmp = 0xff80;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   return vc;
  tags: [MPE]
@@ -1760,12 +1760,12 @@
   intv8 vc:
  -
   return intv8: |
-   va == 0 ? vb : vc
+   va == 0? vb: vc
  desc: |
-  对Va中每个字元素与0进行等于比较测试，若条件成立，则将向量Vb对应的字元素写入Vd的对应位置，否则将向量Vc对应的字元素（或“0”扩展5位立即数#c形成的字整数）写入Vd的对应位置。
+  Perform an equal comparison test on each word element in Va and 0. If the condition is true, write the word element corresponding to vector Vb to the corresponding position of Vd, otherwise extend the word element corresponding to vector Vc (or "0" by 5 bits immediately The word integer formed by the number #c) is written to the corresponding position of Vd.
  op: |
-  for (i = 0; i < 8; i ++){
-    vc[i] = va[i] == 0 ? vb[i] : vc[i];
+  for (i = 0; i <8; i ++) {
+    vc [i] = va [i] == 0? vb [i]: vc [i];
   }
   return vc;
  tags: [MPE]
@@ -1783,12 +1783,12 @@
   intv8 vc:
  -
   return intv8: |
-   va <= 0 ? vb : vc
+   va <= 0? vb: vc
  desc: |
-  对Va中每个字元素与0进行小于等于比较测试，若条件成立，则将向量Vb对应的字元素写入Vd的对应位置，否则将向量Vc对应的字元素（或“0”扩展5位立即数#c形成的字整数）写入Vd的对应位置。
+  Perform a comparison test of less than or equal to each word element in Va and 0. If the condition is true, write the word element corresponding to vector Vb to the corresponding position of Vd, otherwise extend the word element corresponding to vector Vc (or "0" by 5 bits The word integer formed by the immediate number #c) is written to the corresponding position of Vd.
  op: |
-  for (i = 0; i < 8; i ++){
-    vc[i] = va[i] <= 0 ? vb[i] : vc[i];
+  for (i = 0; i <8; i ++) {
+    vc [i] = va [i] <= 0? vb [i]: vc [i];
   }
   return vc;
  tags: [MPE]
@@ -1806,12 +1806,12 @@
   intv8 vc:
  -
   return intv8: |
-   va < 0 ? vb : vc
+   va <0? vb: vc
  desc: |
-  对Va中每个字元素与0进行小于比较测试，若条件成立，则将向量Vb对应的字元素写入Vd的对应位置，否则将向量Vc对应的字元素（或“0”扩展5位立即数#c形成的字整数）写入Vd的对应位置。
+  Perform a less than comparison test on each word element in Va with 0. If the condition is true, write the word element corresponding to vector Vb to the corresponding position of Vd, otherwise extend the word element corresponding to vector Vc (or "0" by 5 bits immediately The word integer formed by the number #c) is written to the corresponding position of Vd.
  op: |
-  for (i = 0; i < 8; i ++){
-    vc[i] = va[i] <= 0 ? vb[i] : vc[i];
+  for (i = 0; i <8; i ++) {
+    vc [i] = va [i] <= 0? vb [i]: vc [i];
   }
   return vc;
  tags: [MPE]
@@ -1830,12 +1830,12 @@
   intv8 vc:
  -
   return intv8: |
-   (va & 1) == 0 ? vb : vc
+   (va & 1) == 0? vb: vc
  desc: |
-  对Va中每个字元素的低位进行测试，若为0，则将向量Vb对应的字元素写入Vd的对应位置，否则将向量Vc对应的字元素（或“0”扩展5位立即数#c形成的字整数）写入Vd的对应位置。
+  Test the low bit of each word element in Va, if it is 0, write the word element corresponding to vector Vb to the corresponding position of Vd, otherwise write the word element corresponding to vector Vc (or "0" by 5 digits immediately # c word integer) written to the corresponding position of Vd.
  op: |
-  for (i = 0; i < 8; i ++){
-    vc[i] = (va[i] & 1) == 0 ? vb[i] : vc[i];
+  for (i = 0; i <8; i ++) {
+    vc [i] = (va [i] & 1) == 0? vb [i]: vc [i];
   }
   return vc;
  tags: [MPE]
@@ -1846,7 +1846,7 @@
  inst: vlogzz
  params:
  -
-  int zz: 真值表，需为立即数
+  int zz: truth table, need to be immediate
  -
   intv8 va:
  -
@@ -1854,20 +1854,20 @@
  -
   intv8 vc:
  -
-  return intv8: zz[(va << 2) + (vb << 1) + vc]
+  return intv8: zz [(va << 2) + (vb << 1) + vc]
  desc: |
-  将Va、Vb和Vc中对应的每一位，组成3位的二进制数，从两位16进制参数zz的8位二进制值中选出一位，写入Vd的对应位中。
+  Each bit corresponding to Va, Vb, and Vc forms a 3-bit binary number, selects one bit from the 8-bit binary value of the two-digit hexadecimal parameter zz, and writes it into the corresponding bit of Vd.
  op: |
-  int truth[8];
-  for (i = 0; i < 8; i ++)
-    truth[i] = (zz >> i) & 1;
-  for (i = 0; i < 8; i ++){
-    vc[i] = 0;
-    for (j = 0; j < 32; j ++){
-      a = (va[i] >> j) & 1;
-      b = (vb[i] >> j) & 1;
-      c = (vc[i] >> j) & 1;
-      vc[i] = truth[(a << 2) + (b << 1) + c];
+  int truth [8];
+  for (i = 0; i <8; i ++)
+    truth [i] = (zz >> i) & 1;
+  for (i = 0; i <8; i ++) {
+    vc [i] = 0;
+    for (j = 0; j <32; j ++) {
+      a = (va [i] >> j) & 1;
+      b = (vb [i] >> j) & 1;
+      c = (vc [i] >> j) & 1;
+      vc [i] = truth [(a << 2) + (b << 1) + c];
     }
   }
   return vc;
@@ -1884,10 +1884,10 @@
  -
   return doublev4: va + vb
  desc: |
-  doublev4类型的加法运算，将va中的4个double浮点数分别与vb中的4个double浮点数进行加法运算。可以用“+”符号替换。
+  The doublev4 type addition operation adds 4 double floating point numbers in va to 4 double floating point numbers in vb respectively. Can be replaced with "+" symbol.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] + vb[i];
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] + vb [i];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -1903,10 +1903,10 @@
  -
   return floatv4: va + vb
  desc: |
-  floatv4类型的加法运算，将va中的4个float浮点数分别与vb中的4个float浮点数进行加法运算。可以用“+”符号替换。
+  The addition operation of floatv4 type adds 4 float floating point numbers in va and 4 float floating point numbers in vb respectively. Can be replaced with "+" symbol.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] + vb[i];
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] + vb [i];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -1920,12 +1920,12 @@
  -
   doublev4 vb:
  -
-  return doublev4: va - vb
+  return doublev4: va-vb
  desc: |
-  doublev4类型的减法运算，将va中的4个double浮点数分别与vb中的4个double浮点数进行减法运算。可以用“-”符号替换。
+  Doublev4 type of subtraction operation, the 4 double floating point numbers in va and 4 double floating point numbers in vb respectively. Can be replaced with "-" symbol.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] - vb[i];
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i]-vb [i];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -1939,12 +1939,12 @@
  -
   floatv4 vb:
  -
-  return floatv4: va - vb
+  return floatv4: va-vb
  desc: |
-  floatv4类型的减法运算，将va中的4个float浮点数分别与vb中的4个float浮点数进行减法运算。可以用“-”符号替换。
+  Subtraction operation of floatv4 type, the 4 float floating-point numbers in va and 4 float floating-point numbers in vb are subtracted. Can be replaced with "-" symbol.
  op: |
-  for (i = 0; i < 4; i ++)
-   vc[i] = va[i] - vb[i];
+  for (i = 0; i <4; i ++)
+   vc [i] = va [i]-vb [i];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -1960,10 +1960,10 @@
  -
   return doublev4: va * vb
  desc: |
-  doublev4类型的乘法运算，将va中的4个double浮点数分别与vb中的4个double浮点数进行乘法运算。可以用“*”符号替换。
+  Doublev4 type multiplication operation, multiplying 4 double floating point numbers in va and 4 double floating point numbers in vb respectively. Can be replaced with "*" symbol.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] * vb[i];
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] * vb [i];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -1979,10 +1979,10 @@
  -
   return floatv4: va * vb
  desc: |
-  floatv4类型的乘法运算，将va中的4个float浮点数分别与vb中的4个float浮点数进行乘法运算。可以用“*”符号替换。
+  The floatv4 type multiplication operation multiplies the 4 float floating-point numbers in va with the 4 float floating-point numbers in vb Can be replaced with "*" symbol.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] * vb[i];
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] * vb [i];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2000,11 +2000,11 @@
  -
   return doublev4: va * vb + vc
  desc: |
-  doublev4类型的乘加运算，将va中的4个double浮点数和vb中的4个double浮点数以及vc中的4个浮点数分别进行乘加运算。可以用“*”和“+”符号替换。
-  ret = va*vb + vc;
+  The doublev4 type multiply-add operation multiplies the 4 double floating point numbers in va, 4 double floating point numbers in vb, and 4 floating point numbers in vc. Can be replaced with "*" and "+" symbols.
+  ret = va * vb + vc;
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] * vb[i] + vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] * vb [i] + vc [i];
   return vd;
  header: simd.h
  tags: [MPE, CPE]
@@ -2022,11 +2022,11 @@
  -
   return floatv4:
  desc: |
-  floatv4类型的乘加运算，将va中的4个float浮点数和vb中的4个float浮点数以及vc中的4个浮点数分别进行乘加运算。可以用“*”和“+”符号替换。
-  ret = va*vb + vc;
+  The floatv4 type multiply-add operation multiplies the 4 float floating-point numbers in va, 4 float floating-point numbers in vb and 4 floating-point numbers in vc respectively Can be replaced with "*" and "+" symbols.
+  ret = va * vb + vc;
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] * vb[i] + vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] * vb [i] + vc [i];
   return vd;
  header: simd.h
  tags: [MPE, CPE]
@@ -2042,13 +2042,13 @@
  -
   doublev4 vc:
  -
-  return doublev4: va * vb - vc
+  return doublev4: va * vb-vc
  desc: |
-  doublev4类型的乘减运算，将va中的4个double浮点数和vb中的4个double浮点数以及vc中的4个浮点数分别进行乘减运算。可以用“*”和“-”符号替换。
-  ret=va*vb-vc；
+  Doublev4 type multiplication and subtraction operations, respectively, 4 double floating-point numbers in va, 4 double floating-point numbers in vb and 4 floating-point numbers in vc, respectively Can be replaced with "*" and "-" symbols.
+  ret = va * vb-vc;
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] * vb[i] - vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] * vb [i]-vc [i];
   return vd;
  header: simd.h
  tags: [MPE, CPE]
@@ -2064,13 +2064,13 @@
  -
   floatv4 vc:
  -
-  return floatv4: va * vb - vc
+  return floatv4: va * vb-vc
  desc: |
-  floatv4类型的乘减运算，将va中的4个浮点数和vb中的4个浮点数以及vc中的4个浮点数分别进行乘减运算。可以用“*”和“-”符号替换。
-  ret=va*vb-vc;
+  The floatv4 type of multiplication and subtraction operations respectively multiplies and subtracts 4 floating point numbers in va, 4 floating point numbers in vb and 4 floating point numbers in vc. Can be replaced with "*" and "-" symbols.
+  ret = va * vb-vc;
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] * vb[i] - vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] * vb [i]-vc [i];
   return vd;
  header: simd.h
  tags: [MPE, CPE]
@@ -2088,11 +2088,11 @@
  -
   return doublev4: -va * vb + vc
  desc: |
-  doublev4类型的负乘加运算，将va中的4个double浮点数和vb中的4个double浮点数以及vc中的4个浮点数分别进行负乘加运算。可以用“*”和“+”和“-”符号替换。
-  ret = -va*vb + vc；
+  Negative multiply-add operations of type doublev4, perform 4 multiply-add operations on 4 double floating point numbers in va, 4 double floating point numbers in vb, and 4 floating point numbers in vc Can be replaced with "*" and "+" and "-" symbols.
+  ret = -va * vb + vc;
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = -va[i] * vb[i] + vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = -va [i] * vb [i] + vc [i];
   return vd;
  header: simd.h
  tags: [MPE, CPE]
@@ -2108,13 +2108,13 @@
  -
   floatv4 vc:
  -
-  return floatv4: -va * vb +vc
+  return floatv4: -va * vb + vc
  desc: |
-  floatv4类型的负乘加运算，将va中的4个float浮点数和vb中的4个float浮点数以及vc中的4个浮点数分别进行负乘加运算。可以用“*”和“+”和“-”符号替换。
-  ret = -va*vb + vc；
+  Negative multiply-add operations of type floatv4, perform 4 multiply-add operations on 4 float floating-point numbers in va, 4 float floating-point numbers in vb and 4 floating-point numbers in vc Can be replaced with "*" and "+" and "-" symbols.
+  ret = -va * vb + vc;
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = -va[i] * vb[i] + vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = -va [i] * vb [i] + vc [i];
   return vd;
  header: simd.h
  tags: [MPE, CPE]
@@ -2130,13 +2130,13 @@
  -
   doublev4 vc:
  -
-  return doublev4: -va * vb - vc
+  return doublev4: -va * vb-vc
  desc: |
-  doublev4类型的负乘减运算，将va中的4个double浮点数和vb中的4个double浮点数以及vc中的4个浮点数分别进行负乘减运算。可以用“*”和“+”和“-”符号替换。
-  ret = -va*vb - vc；
+  Negative multiplication and subtraction of doublev4 type, the 4 double floating-point numbers in va, 4 double floating-point numbers in vb and 4 floating-point numbers in vc are negative multiplication and subtraction operations respectively. Can be replaced with "*" and "+" and "-" symbols.
+  ret = -va * vb-vc;
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = -va[i] * vb[i] - vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = -va [i] * vb [i]-vc [i];
   return vd;
  header: simd.h
  tags: [MPE, CPE]
@@ -2154,11 +2154,11 @@
  -
   return floatv4:
  desc: |
-  floatv4类型的负乘减运算，将va中的4个float浮点数和vb中的4个float浮点数以及vc中的4个浮点数分别进行负乘减运算。可以用“*”和“+”和“-”符号替换。
-  ret = -va*vb - vc；
+  Negative multiplication and subtraction of floatv4 type, the four float floating-point numbers in va and 4 float floating-point numbers in vb and 4 floating-point numbers in vc are respectively subjected to negative multiplication and subtraction. Can be replaced with "*" and "+" and "-" symbols.
+  ret = -va * vb-vc;
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = -va[i] * vb[i] - vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = -va [i] * vb [i]-vc [i];
   return vd;
  header: simd.h
  tags: [MPE, CPE]
@@ -2175,12 +2175,12 @@
   doublev4 vc:
  -
   return doublev4: |
-   va == 0 ? vb : vc
+   va == 0? vb: vc
  desc: |
-  判断doublev4/floatv4类型的参数va，如果等于0，则返回vb的值；否则返回vc的值。
+  Determine the parameter va of type doublev4 / floatv4. If it is equal to 0, return the value of vb; otherwise, return the value of vc.
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] == 0 ? vb[i] : vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] == 0? vb [i]: vc [i];
   return vd;
  header: simd.h
  tags: [MPE, CPE]
@@ -2197,13 +2197,13 @@
   floatv4 vc:
  -
   return floatv4: |
-   va == 0 ? vb : vc
+   va == 0? vb: vc
  desc: |
-  判断doublev4/floatv4类型的参数va，如果等于0，则返回vb的值；否则返回vc的值。
+  Determine the parameter va of type doublev4 / floatv4. If it is equal to 0, return the value of vb; otherwise, return the value of vc.
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] == 0 ? vb[i] : vc[i];
-  return vd;  
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] == 0? vb [i]: vc [i];
+  return vd;
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-arith, SIMD-sp]
@@ -2219,13 +2219,13 @@
   doublev4 vc:
  -
   return doublev4: |
-   va < 0 ? vb : vc
+   va <0? vb: vc
  desc: |
-  判断doublev4/floatv4类型的参数va，如果小于0，则返回vb的值；否则返回vc的值。
+  Determine the parameter va of type doublev4 / floatv4. If it is less than 0, return the value of vb; otherwise, return the value of vc.
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] < 0 ? vb[i] : vc[i];
-  return vd;  
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] <0? vb [i]: vc [i];
+  return vd;
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-arith, SIMD-dp]
@@ -2241,13 +2241,13 @@
   floatv4 vc:
  -
   return floatv4: |
-   va < 0 ? vb : vc
+   va <0? vb: vc
  desc: |
-  判断doublev4/floatv4类型的参数va，如果小于0，则返回vb的值；否则返回vc的值。
+  Determine the parameter va of type doublev4 / floatv4. If it is less than 0, return the value of vb; otherwise, return the value of vc.
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] < 0 ? vb[i] : vc[i];
-  return vd;  
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] <0? vb [i]: vc [i];
+  return vd;
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-arith, SIMD-sp]
@@ -2263,13 +2263,13 @@
   doublev4 vc:
  -
   return doublev4: |
-   va <= 0 ? vb : vc
+   va <= 0? vb: vc
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] <= 0 ? vb[i] : vc[i];
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] <= 0? vb [i]: vc [i];
   return vd;
  desc: |
-  判断doublev4/floatv4类型的参数va，如果小于等于0，则返回vb的值；否则返回vc的值。
+  Determine the parameter va of type doublev4 / floatv4. If it is less than or equal to 0, return the value of vb; otherwise, return the value of vc.
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-arith, SIMD-dp]
@@ -2285,13 +2285,13 @@
   floatv4 vc:
  -
   return floatv4: |
-   va <= 0 ? vb : vc
+   va <= 0? vb: vc
  desc: |
-  判断doublev4/floatv4类型的参数va，如果小于等于0，则返回vb的值；否则返回vc的值。
+  Determine the parameter va of type doublev4 / floatv4. If it is less than or equal to 0, return the value of vb; otherwise, return the value of vc.
  op: |
-  for (i = 0; i < 4; i ++)
-    vd[i] = va[i] <= 0 ? vb[i] : vc[i];
-  return vd;  
+  for (i = 0; i <4; i ++)
+    vd [i] = va [i] <= 0? vb [i]: vc [i];
+  return vd;
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-arith, SIMD-sp]
@@ -2307,10 +2307,10 @@
   return floatv4: |
    (va & 8000 0000) | (vb & 0x7fff ffff)
  desc: |
-  浮点拷贝符号，返回值中的符号位是va的符号位，其余部分为vb中的数据。
+  Floating point copy symbol, the sign bit in the return value is the sign bit of va, and the rest is the data in vb.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = (va[i] & 80000000) | (vb[i] & 0x7fffffff);
+  for (i = 0; i <4; i ++)
+    vc [i] = (va [i] & 80000000) | (vb [i] & 0x7fffffff);
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2327,10 +2327,10 @@
   return doublev4: |
    (va & 8000 0000 0000 0000) | (vb & 0x7fff ffff ffff ffff)
  desc: |
-  浮点拷贝符号，返回值中的符号位是va的符号位，其余部分为vb中的数据。
+  Floating point copy symbol, the sign bit in the return value is the sign bit of va, and the rest is the data in vb.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = (va[i] & 8000000000000000LL) | (vb[i] & 0x7fffffffffffffffLL)
+  for (i = 0; i <4; i ++)
+    vc [i] = (va [i] & 8000000000000000LL) | (vb [i] & 0x7fffffffffffffffLLLL)
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2346,10 +2346,10 @@
  -
   return floatv4: (va & 0xff80 0000) | (vb & 0x007f ffff)
  desc: |
-  浮点拷贝符号和指数，返回值中的符号位和指数位是va的数据，其余部分为vb中的数据。
+  Floating point copies the sign and exponent, the sign and exponent bits in the return value are the data of va, and the rest are the data in vb.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = (va[i] & 0xff800000) | (vb[i] & 0x007fffff);
+  for (i = 0; i <4; i ++)
+    vc [i] = (va [i] & 0xff800000) | (vb [i] & 0x007fffff);
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2366,10 +2366,10 @@
   return doublev4: |
    (va & 0xfff0 0000 0000 0000) | (vb & 0x000f ffff ffff ffff)
  desc: |
-  浮点拷贝符号和指数，返回值中的符号位和指数位是va的数据，其余部分为vb中的数据。
+  Floating point copies the sign and exponent, the sign and exponent bits in the return value are the data of va, and the rest are the data in vb.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = (va[i] & 0xfff0000000000000LL) | (vb[i] & 0x000fffffffffffffLL)
+  for (i = 0; i <4; i ++)
+    vc [i] = (va [i] & 0xfff0000000000000LL) | (vb [i] & 0x000fffffffffffffLL)
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2384,12 +2384,12 @@
   floatv4 vb:
  -
   return floatv4: |
-   ((~va) & 0x8000 0000) | (vb & 0x7fff ffff)
+   ((~ va) & 0x8000 0000) | (vb & 0x7fff ffff)
  desc: |
-  浮点拷贝符号反码，返回值中的符号位是va的符号位的反码，其余部分为vb中的数据。
+  Floating point copy inverse sign, the sign bit in the return value is the inverse sign of the sign bit of va, and the rest is the data in vb.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = ((~va) & 0x80000000) | (vb &0x7fffffff)
+  for (i = 0; i <4; i ++)
+    vc [i] = ((~ va) & 0x80000000) | (vb & 0x7fffffff)
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2404,12 +2404,12 @@
   doublev4 vb:
  -
   return doublev4: |
-   ((~va) & 0x8000 0000 0000 0000) | (vb & 0x7fff ffff ffff ffff)
+   ((~ va) & 0x8000 0000 0000 0000) | (vb & 0x7fff ffff ffff ffff)
  desc: |
-  浮点拷贝符号反码，返回值中的符号位是va的符号位的反码，其余部分为vb中的数据。
+  Floating point copy inverse sign, the sign bit in the return value is the inverse sign of the sign bit of va, and the rest is the data in vb.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = ((~va[i]) & 0x8000000000000000LL) | (vb[i] & 0x7fffffffffffffffLL)
+  for (i = 0; i <4; i ++)
+    vc [i] = ((~ va [i]) & 0x8000000000000000LL) | (vb [i] & 0x7fffffffffffffffLL)
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2425,10 +2425,10 @@
  -
   return doublev4: va / vb
  desc: |
-  doublev4类型的除法运算，将va中的4个double浮点数分别与vb中的4个double浮点数进行除法运算。
+  The doublev4 type division operation divides 4 double floating point numbers in va and 4 double floating point numbers in vb respectively.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] / vb[i];
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] / vb [i];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2444,10 +2444,10 @@
  -
   return floatv4: va / vb
  desc: |
-  floatv4类型的乘法运算，将va中的4个float浮点数分别与vb中的4个float浮点数进行除法运算。
+  The floatv4 type multiplication operation divides the four float floating-point numbers in va and the four float floating-point numbers in vb respectively.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] / vb[i];
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] / vb [i];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2459,12 +2459,12 @@
  -
   doublev4 va:
  -
-  return doublev4: sqrt(va)
+  return doublev4: sqrt (va)
  desc: |
-  doublev4类型的求平方根运算，将va中的4个double浮点数分别求平方根。
+  The square root operation of doublev4 type is to square the four double floating point numbers in va.
  op: |
-  for (i = 0; i < 4; i ++)
-    vb[i] = sqrt(va[i]);
+  for (i = 0; i <4; i ++)
+    vb [i] = sqrt (va [i]);
   return vb;
  header: simd.h
  tags: [MPE, CPE]
@@ -2476,16 +2476,17 @@
  -
   floatv4 va:
  -
-  return floatv4: sqrt(va)
+  return floatv4: sqrt (va)
  desc: |
-  floatv4类型的求平方根运算，将va中的4个float浮点数分别求平方根。
+  The square root operation of floatv4 type is to square the four floating-point numbers in va.
  op: |
-  for (i = 0; i < 4; i ++)
-    vb[i] = sqrt(va[i]);
+  for (i = 0; i <4; i ++)
+    vb [i] = sqrt (va [i]);
   return vb;
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-arith, SIMD-sp]
+
 -
  name: simd_vfcmpeq
  inst: vfcmpeq
@@ -2496,12 +2497,12 @@
   doublev4 vb:
  -
   return doublev4: |
-   va == vb ? 2.0 : 0
+   va == vb? 2.0: 0
  desc: |
-  将Va和Vb中的对应浮点向量元素进行等于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+  Compare the corresponding floating-point vector elements in Va and Vb for equality, if the condition is true, write a non- "0" floating-point value (2.0) to the corresponding position of vc, otherwise write a true "0" to the corresponding position of vc .
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] == vb[i] ? 2.0 : 0;
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] == vb [i]? 2.0: 0;
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2516,12 +2517,12 @@
   floatv4 vb:
  -
   return floatv4: |
-   va == vb ? 2.0 : 0
+   va == vb? 2.0: 0
  desc: |
-  将Va和Vb中的对应浮点向量元素进行等于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+  Compare the corresponding floating-point vector elements in Va and Vb for equality, if the condition is true, write a non- "0" floating-point value (2.0) to the corresponding position of vc, otherwise write a true "0" to the corresponding position of vc .
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] == vb[i] ? 2.0 : 0;
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] == vb [i]? 2.0: 0;
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2536,12 +2537,12 @@
   doublev4 vb:
  -
   return doublev4: |
-   va <= vb ? 2.0 : 0
+   va <= vb? 2.0: 0
  desc: |
-  将Va和Vb中的对应浮点向量元素进行小于等于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+  Compare the corresponding floating-point vector elements in Va and Vb with less than or equal to each other. If the condition is true, write a non- "0" floating-point value (2.0) to the corresponding position of vc, otherwise write a true "0" to the corresponding position of vc position.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] <= vb[i] ? 2.0 : 0;
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] <= vb [i]? 2.0: 0;
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2556,9 +2557,9 @@
   floatv4 vb:
  -
   return floatv4: |
-   va <= vb ? 2.0 : 0
+   va <= vb? 2.0: 0
  desc: |
-  将Va和Vb中的对应浮点向量元素进行小于等于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+  Compare the corresponding floating-point vector elements in Va and Vb with less than or equal to each other. If the condition holds, write a non- "0" floating-point value (2.0) to the corresponding position of vc, otherwise write a true "0" to the corresponding position of vc position.
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-arith, SIMD-sp]
@@ -2572,12 +2573,12 @@
   doublev4 vb:
  -
   return doublev4: |
-   va < vb ? 2.0 : 0
+   va <vb? 2.0: 0
  desc: |
-  将Va和Vb中的对应浮点向量元素进行小于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+  Compare the corresponding floating-point vector elements in Va and Vb to less than the comparison. If the condition is true, write a non- "0" floating-point value (2.0) to the corresponding position of vc, otherwise write a true "0" to the corresponding position of vc .
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] < vb[i] ? 2.0 : 0;
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] <vb [i]? 2.0: 0;
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2592,12 +2593,12 @@
   floatv4 vb:
  -
   return floatv4: |
-   va < vb ? 2.0 : 0
+   va <vb? 2.0: 0
  desc: |
-  将Va和Vb中的对应浮点向量元素进行小于比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+  Compare the corresponding floating-point vector elements in Va and Vb to less than the comparison. If the condition is true, write a non- "0" floating-point value (2.0) to the corresponding position of vc, otherwise write a true "0" to the corresponding position of vc .
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = va[i] < vb[i] ? 2.0 : 0;
+  for (i = 0; i <4; i ++)
+    vc [i] = va [i] <vb [i]? 2.0: 0;
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2612,12 +2613,12 @@
   doublev4 vb:
  -
   return doublev4: |
-   isnan(va) || isnan(vb) ? 2.0 : 0
+   isnan (va) || isnan (vb)? 2.0: 0
  desc: |
-  将Va和Vb中的对应浮点向量元素进行无序比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+  Compare the corresponding floating-point vector elements in Va and Vb out of order. If the condition holds, write a non- "0" floating-point value (2.0) to the corresponding position of vc, otherwise write a true "0" to the corresponding position of vc position.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = isnan(va[i]) || isnan(vb[i]) ? 2.0 : 0;
+  for (i = 0; i <4; i ++)
+    vc [i] = isnan (va [i]) || isnan (vb [i])? 2.0: 0;
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2632,12 +2633,12 @@
   floatv4 vb:
  -
   return floatv4: |
-   isnan(va) || isnan(vb) ? 2.0 : 0;
+   isnan (va) || isnan (vb)? 2.0: 0;
  desc: |
-  将Va和Vb中的对应浮点向量元素进行无序比较，如果条件成立，则将非“0”浮点值（2.0）写入vc的对应位置，否则将真“0”写入vc的对应位置。
+  Compare the corresponding floating-point vector elements in Va and Vb out of order. If the condition is true, write a non- "0" floating-point value (2.0) to the corresponding position of vc, otherwise write a true "0" to the corresponding position of vc position.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = isnan(va[i]) || isnan(vb[i]) ? 2.0 : 0;
+  for (i = 0; i <4; i ++)
+    vc [i] = isnan (va [i]) || isnan (vb [i])? 2.0: 0;
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2652,16 +2653,16 @@
   intv8 vb:
  -
   return intv8: |
-   vb[0 : n]va[0]vb[n + 1 : 8]
+   vb [0: n] va [0] vb [n + 1: 8]
  desc: |
-  将浮点寄存器va低64位的寄存器格式字整数转换为32位字整数，替代vb中由n（有效值为0～7）指定32位字元素，组成并返回新的字整数向量。
-  该接口实际上对应8个接口，分别是simd_vinsw0、simd_vinsw1、simd_vinsw2、simd_vinsw3、simd_vinsw4、simd_vinsw5、simd_vinsw6、simd_vinsw7，比如：
-  vc=simd_vinsw2
-  表示va低64位的寄存器格式字整数先转换为32位字整数，然后替代vb的64：95这32位的字元素，组成新的vb返回给vc。
+  Convert the lower 64-bit register format word integer of the floating-point register va to a 32-bit word integer, replace the 32-bit word element specified by n (valid value is 0 to 7) in vb, and form a new word integer vector.
+  This interface actually corresponds to 8 interfaces, namely simd_vinsw0, simd_vinsw1, simd_vinsw2, simd_vinsw3, simd_vinsw4, simd_vinsw5, simd_vinsw6, simd_vinsw7, for example:
+  vc = simd_vinsw2
+  The low 64-bit register format word integer representing va is first converted to a 32-bit word integer, and then the 32-bit word elements of 64:95 of vb are replaced, and a new vb is formed and returned to vc.
  op: |
-  for (i = 0; i < 8; i ++)
-    vc[i] = vb[i];
-  vc[n] = va[n];
+  for (i = 0; i <8; i ++)
+    vc [i] = vb [i];
+  vc [n] = va [n];
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-misc, SIMD-int]
@@ -2675,16 +2676,16 @@
   doublev4 vb:
  -
   return doublev4: |
-   vb[0 : n]va[0]vb[n + 1 : 8]
+   vb [0: n] va [0] vb [n + 1: 8]
  desc: |
-  将浮点寄存器va低64位浮点数据替代vb中由n（有效值为0～3）指定的64位浮点元素，组成并返回新的浮点向量。
-  该接口实际上对应4个接口，分别是simd_vinsf0、simd_vinsf1、simd_vinsf2、simd_vinsf3，比如：
-  vc=simd_vinsf1(va,vb)
-  表示va低64位浮点数据替代vb的64：127这64位的浮点元素，组成新的vb返回给vc。
+  Replace the 64-bit floating-point data in the floating-point register va with low 64-bit floating-point data specified by n (valid values ​​are 0 to 3) in vb to form and return a new floating-point vector.
+  This interface actually corresponds to 4 interfaces, namely simd_vinsf0, simd_vinsf1, simd_vinsf2, simd_vinsf3, for example:
+  vc = simd_vinsf1 (va, vb)
+  It means that 64-bit floating-point data of low 64-bit floating-point data of va replaces 64-bit floating-point elements of 64: 127, and a new vb is returned to vc.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = vb[i];
-  vc[n] = va[n];
+  for (i = 0; i <4; i ++)
+    vc [i] = vb [i];
+  vc [n] = va [n];
 
  header: simd.h
  tags: [MPE, CPE]
@@ -2699,16 +2700,16 @@
   floatv4 vb:
  -
   return floatv4: |
-   vb[0 : n]va[0]vb[n + 1 : 8]
+   vb [0: n] va [0] vb [n + 1: 8]
  desc: |
-  将浮点寄存器va低64位浮点数据替代vb中由n（有效值为0～3）指定的64位浮点元素，组成并返回新的浮点向量。
-  该接口实际上对应4个接口，分别是simd_vinsf0、simd_vinsf1、simd_vinsf2、simd_vinsf3，比如：
-  vc=simd_vinsf1(va,vb)
-  表示va低64位浮点数据替代vb的64：127这64位的浮点元素，组成新的vb返回给vc。
+  Replace the 64-bit floating-point data in the floating-point register va with low 64-bit floating-point data specified by n (valid values ​​are 0 to 3) in vb to form and return a new floating-point vector.
+  This interface actually corresponds to 4 interfaces, namely simd_vinsf0, simd_vinsf1, simd_vinsf2, simd_vinsf3, for example:
+  vc = simd_vinsf1 (va, vb)
+  It means that 64-bit floating-point data of low 64-bit floating-point data of va replaces 64-bit floating-point elements of 64: 127, and a new vb is returned to vc.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = vb[i];
-  vc[n] = va[n];
+  for (i = 0; i <4; i ++)
+    vc [i] = vb [i];
+  vc [n] = va [n];
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-misc, SIMD-sp]
@@ -2719,13 +2720,13 @@
  -
   intv8 va:
  -
-  return intv8: va[n]
+  return intv8: va [n]
  desc: |
-  将va中由n（有效值为0～7）指定的32位字元素，变为64位寄存器格式的字整数写入目的浮点寄存器的低64位，目的寄存器的高192位内容不确定。
-  该接口实际上对应8个接口，分别是simd_vextw0、simd_vextw1、simd_vextw2、simd_vextw3、simd_vextw4、simd_vextw5、simd_vextw6、simd_vextw7，比如：
-  vc=simd_vextw2(va)
-  表示va的 64：95这32位的字元素，变为64位寄存器格式的字整数写入vc低64位，其中vc高192位内容不确定。
- op: return va[n];
+  Write the 32-bit word element specified by n (valid value is 0 to 7) in va into a 64-bit register format word integer into the lower 64 bits of the destination floating-point register, and the contents of the upper 192 bits of the destination register are undefined.
+  This interface actually corresponds to 8 interfaces, namely simd_vextw0, simd_vextw1, simd_vextw2, simd_vextw3, simd_vextw4, simd_vextw5, simd_vextw6, simd_vextw7, such as:
+  vc = simd_vextw2 (va)
+  The 32-bit word element representing 64:95 of va, and the word integer converted into the 64-bit register format are written to the lower 64 bits of vc, of which the upper 192 bits of vc are uncertain.
+ op: return va [n];
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-misc, SIMD-int]
@@ -2736,13 +2737,13 @@
  -
   doublev4 va:
  -
-  return doublev4: va[n]
+  return doublev4: va [n]
  desc: |
-  将va中由n（有效值为0～3）指定的S浮点或D浮点元素存入目的寄存器的<63:0>中。此指令可实现S浮点和D浮点的提取。
-  该接口实际上对应4个接口，分别是simd_vextf0、simd_vextf1、simd_vextf2、simd_vextf3，比如：
-  vc=simd_vextf1(va)
-  表示va的 64：127这64位的浮点元素存入vc的<63:0>中。
- op: return va[n];
+  Store the S floating point or D floating point element specified by n (valid value is 0 to 3) in va in <63: 0> of the destination register. This instruction can extract S floating point and D floating point.
+  This interface actually corresponds to 4 interfaces, namely simd_vextf0, simd_vextf1, simd_vextf2, simd_vextf3, for example:
+  vc = simd_vextf1 (va)
+  The 64-bit floating point element representing 64: 127 of va is stored in <63: 0> of vc.
+ op: return va [n];
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-misc, SIMD-dp]
@@ -2753,13 +2754,13 @@
  -
   floatv4 va:
  -
-  return floatv4: va[n]
+  return floatv4: va [n]
  desc: |
-  将va中由n（有效值为0～3）指定的S浮点或D浮点元素存入目的寄存器的<63:0>中。此指令可实现S浮点和D浮点的提取。
-  该接口实际上对应4个接口，分别是simd_vextf0、simd_vextf1、simd_vextf2、simd_vextf3，比如：
-  vc=simd_vextf1(va)
-  表示va的 64：127这64位的浮点元素存入vc的<63:0>中。
- op: return va[n];
+  Store the S floating point or D floating point element specified by n (valid value is 0 to 3) in va in <63: 0> of the destination register. This instruction can extract S floating point and D floating point.
+  This interface actually corresponds to 4 interfaces, namely simd_vextf0, simd_vextf1, simd_vextf2, simd_vextf3, for example:
+  vc = simd_vextf1 (va)
+  The 64-bit floating point element representing 64: 127 of va is stored in <63: 0> of vc.
+ op: return va [n];
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-misc, SIMD-sp]
@@ -2771,12 +2772,12 @@
   doublev4 va:
  -
   return intv8: |
-   *(int*)&va[0];
+   * (int *) & va [0];
  desc: |
-  将va低64位的寄存器格式字整数转换位32位字整数，复制成8个相同元素组成新的字整数向量写入目的寄存器。
+  Convert the low 64-bit register format word integer of va into a 32-bit word integer, copy into 8 identical elements to form a new word integer vector and write it into the destination register.
  op: |
-  for (i = 0; i < 8; i ++)
-    vc[i] = *(int*)&va[0];;
+  for (i = 0; i <8; i ++)
+    vc [i] = * (int *) & va [0] ;;
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2789,12 +2790,12 @@
   floatv4 va:
  -
   return intv8: |
-   *(int*)&va[0];
+   * (int *) & va [0];
  desc: |
-  将va低64位的寄存器格式字整数转换位32位字整数，复制成8个相同元素组成新的字整数向量写入目的寄存器。
+  Convert the low 64-bit register format word integer of va into a 32-bit word integer, copy into 8 identical elements to form a new word integer vector and write it into the destination register.
  op: |
-  for (i = 0; i < 8; i ++)
-    vc[i] = *(int*)&va[0];
+  for (i = 0; i <8; i ++)
+    vc [i] = * (int *) & va [0];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2806,12 +2807,12 @@
  -
   doublev4 va:
  -
-  return doublev4: va[0]
+  return doublev4: va [0]
  desc: |
-  将va低64位浮点数据，复制成4个相同元素，组成新的浮点向量写入目的寄存器。
+  Copy the low 64-bit floating-point data of va into 4 identical elements and form a new floating-point vector into the destination register.
  op: |
-  for (i = 0; i < 8; i ++)
-    vc[i] = va[0];
+  for (i = 0; i <8; i ++)
+    vc [i] = va [0];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2823,12 +2824,12 @@
  -
   floatv4 va:
  -
-  return floatv4: va[0]
+  return floatv4: va [0]
  desc: |
-  将va低64位浮点数据，复制成4个相同元素，组成新的浮点向量写入目的寄存器。
+  Copy the low 64-bit floating-point data of va into 4 identical elements and form a new floating-point vector into the destination register.
  op: |
-  for (i = 0; i < 8; i ++)
-    vc[i] = va[0];
+  for (i = 0; i <8; i ++)
+    vc [i] = va [0];
   return vc;
  header: simd.h
  tags: [MPE, CPE]
@@ -2848,14 +2849,14 @@
   return doublev4: |
    [a, b, c, d]
  desc: |
-  doublev4类型的赋值函数，将4个double类型的数据传递到向量变量中。
+  The assignment function of type doublev4 transfers four data of type double to vector variables.
  eg: |
-  doublev4 va=simd_set_doublev4(1.0，2.0，3.0，4.0);
-  va中的值是这样的：
-    +-----+-----+-----+-----+
+  doublev4 va = simd_set_doublev4 (1.0, 2.0, 3.0, 4.0);
+  The value in va is this:
+    + ----- + ----- + ----- + ----- +
     | 4.0 | 3.0 | 2.0 | 1.0 |
-    +-----+-----+-----+-----+
-  255                       0
+    + ----- + ----- + ----- + ----- +
+  255 0
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-set, SIMD-dp]
@@ -2874,14 +2875,14 @@
   return floatv4: |
    [a, b, c, d]
  desc: |
-  floatv4类型的赋值函数，将4个float类型的数据传递到向量变量中。
+  The assignment function of type floatv4 transfers 4 data of type float to a vector variable.
  eg: |
-  floatv4 va=simd_set_floatv4(1.0，2.0，3.0，4.0);
-  va中的值是这样的：
-    +-----+-----+-----+-----+
+  floatv4 va = simd_set_floatv4 (1.0, 2.0, 3.0, 4.0);
+  The value in va is this:
+    + ----- + ----- + ----- + ----- +
     | 4.0 | 3.0 | 2.0 | 1.0 |
-    +-----+-----+-----+-----+
-  255                       0
+    + ----- + ----- + ----- + ----- +
+  255 0
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-set, SIMD-sp]
@@ -2908,14 +2909,14 @@
   return intv8: |
    [a, b, c, d, e, f, g, h]
  desc: |
-  intv8类型的赋值函数，将8个int类型的数据传递到向量变量中。
+  The intv8 type assignment function passes 8 int types of data to a vector variable.
  eg: |
-  va=simd_set_intv8(1,2,3,4,5,6,7,8);
-  va中的值是这样的：
-    +---+---+---+---+---+---+---+---+
-    | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 |
-    +---+---+---+---+---+---+---+---+
-  255                               0
+  va = simd_set_intv8 (1,2,3,4,5,6,7,8);
+  The value in va is this:
+    + --- + --- + --- + --- + --- + --- + --- + --- +
+    8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 |
+    + --- + --- + --- + --- + --- + --- + --- + --- +
+  255 0
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-set, SIMD-int]
@@ -2942,14 +2943,14 @@
   return uintv8: |
    [a, b, c, d, e, f, g, h]
  desc: |
-  uintv8类型的赋值函数，将8个unsigned int类型的数据传递到向量变量中。
+  The uintv8 type assignment function transfers 8 unsigned int types of data to vector variables.
  eg: |
-  va=simd_set_uintv8(1,2,3,4,5,6,7,8);
-  va中的值是这样的：
-    +---+---+---+---+---+---+---+---+
-    | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 |
-    +---+---+---+---+---+---+---+---+
-  255                               0
+  va = simd_set_uintv8 (1,2,3,4,5,6,7,8);
+  The value in va is this:
+    + --- + --- + --- + --- + --- + --- + --- + --- +
+    8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 |
+    + --- + --- + --- + --- + --- + --- + --- + --- +
+  255 0
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-set, SIMD-int]
@@ -2968,14 +2969,14 @@
   return int256: |
    [a, b, c, d]
  desc: |
-  int256类型的赋值函数，将4个long类型的数据传递到向量变量中。
+  The assignment function of type int256 transfers 4 long types of data to a vector variable.
  eg: |
-  va=simd_set_int256(1,2,3,4);
-  va中的值是这样的：
-    +---+---+---+---+
+  va = simd_set_int256 (1,2,3,4);
+  The value in va is this:
+    + --- + --- + --- + --- +
     | 4 | 3 | 2 | 1 |
-    +---+---+---+---+
-  255               0
+    + --- + --- + --- + --- +
+  255 0
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-set, SIMD-int]
@@ -2994,14 +2995,14 @@
   return uint256: |
    [a, b, c, d]
  desc: |
-  uint256类型的赋值函数，将4个unsigned long类型的数据传递到向量变量中。
+  An assignment function of type uint256 transfers 4 unsigned long types of data to a vector variable.
  eg: |
-  va=simd_set_uint256(1,2,3,4);
-  va中的值是这样的：
-    +---+---+---+---+
+  va = simd_set_uint256 (1,2,3,4);
+  The value in va is this:
+    + --- + --- + --- + --- +
     | 4 | 3 | 2 | 1 |
-    +---+---+---+---+
-  255               0
+    + --- + --- + --- + --- +
+  255 0
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-set, SIMD-int]
@@ -3009,16 +3010,16 @@
  name: simd_fprint_intv8
  params:
  -
-  FILE *file:
+  FILE * file:
  -
   intv8 va:
  desc: |
-  intv8类型的数据以8个int的形式打印到文件file中。
+  The data of type intv8 is printed in the file file in the form of 8 ints.
  eg: |
-  va=simd_set_intv8(1,2,3,4,5,6,7,8);
-  simd_fprint_intv8(stderr, va);
-  打印的结果是这样的：
-  [8，7，6，5，4, 3, 2, 1 ]
+  va = simd_set_intv8 (1,2,3,4,5,6,7,8);
+  simd_fprint_intv8 (stderr, va);
+  The printed result is this:
+  [8, 7, 6, 5, 4, 3, 2, 1]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-int]
@@ -3026,16 +3027,16 @@
  name: simd_fprint_uintv8
  params:
  -
-  FILE *file:
+  FILE * file:
  -
   uintv8 va:
  desc: |
-  uintv8类型的数据以8个int的形式打印到文件file中。
+  The uintv8 type data is printed to the file file in the form of 8 ints.
  eg: |
-  va=simd_set_uintv8(1,2,3,4,5,6,7,8);
-  simd_fprint_uintv8(stderr, va);
-  打印的结果是这样的：
-  [8，7，6，5，4, 3, 2, 1 ]
+  va = simd_set_uintv8 (1,2,3,4,5,6,7,8);
+  simd_fprint_uintv8 (stderr, va);
+  The printed result is this:
+  [8, 7, 6, 5, 4, 3, 2, 1]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
@@ -3043,16 +3044,16 @@
  name: simd_fprint_int256
  params:
  -
-  FILE *file:
+  FILE * file:
  -
   int256 va:
  desc: |
-  int256类型的数据以4个long的形式打印到文件file中。
+  Data of type int256 is printed in the file file in the form of 4 longs.
  eg: |
-  va=simd_set_int256(1,2,3,4);
-  simd_fprint_int256(stderr, va);
-  打印的结果是这样的：
-  [ 0x4, 0x3, 0x2, 0x1 ]
+  va = simd_set_int256 (1,2,3,4);
+  simd_fprint_int256 (stderr, va);
+  The printed result is this:
+  [0x4, 0x3, 0x2, 0x1]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
@@ -3060,16 +3061,16 @@
  name: simd_fprint_uint256
  params:
  -
-  FILE *file:
+  FILE * file:
  -
   uint256 va:
  desc: |
-  uint256类型的数据以4个long的形式打印到文件file中。
+  The uint256 type data is printed in the file file in the form of 4 longs.
  eg: |
-  va=simd_set_uint256(1,2,3,4);
-  simd_fprint_uint256(stderr, va);
-  打印的结果是这样的：
-  [ 0x4, 0x3, 0x2, 0x1 ]
+  va = simd_set_uint256 (1,2,3,4);
+  simd_fprint_uint256 (stderr, va);
+  The printed result is this:
+  [0x4, 0x3, 0x2, 0x1]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
@@ -3077,16 +3078,16 @@
  name: simd_fprint_floatv4
  params:
  -
-  FILE *file:
+  FILE * file:
  -
   floatv4 va:
  desc: |
-  floatv4类型的数据以4个float的形式打印到文件file中。
+  Data of type floatv4 is printed in the file file in the form of 4 floats.
  eg: |
-  va=simd_set_floatv4(1.0,2.0,3.0,4.0);
-  simd_fprint_floatv4(stderr, va);
-  打印的结果是这样的：
-  [ 3.0，4.0，2.0, 1.0 ]
+  va = simd_set_floatv4 (1.0,2.0,3.0,4.0);
+  simd_fprint_floatv4 (stderr, va);
+  The printed result is this:
+  [3.0, 4.0, 2.0, 1.0]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-sp]
@@ -3094,16 +3095,16 @@
  name: simd_fprint_doublev4
  params:
  -
-  FILE *file:
+  FILE * file:
  -
   doublev4 va:
  desc: |
-  doublev4类型的数据以4个double的形式打印到文件file中。
+  Data of type doublev4 is printed in the file file in the form of 4 doubles.
  eg: |
-  va=simd_set_doublev4(1.0,2.0,3.0,4.0);
-  simd_fprint_doublev4(stderr, va);
-  打印的结果是这样的：
-  [ 4.0，3.0，2.0, 1.0 ]
+  va = simd_set_doublev4 (1.0,2.0,3.0,4.0);
+  simd_fprint_doublev4 (stderr, va);
+  The printed result is this:
+  [4.0, 3.0, 2.0, 1.0]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
@@ -3113,12 +3114,12 @@
  -
   intv8 va:
  desc: |
-  intv8类型的数据以8个int的形式打印到屏幕。
+  The intv8 type data is printed to the screen in the form of 8 ints.
  eg: |
-  va=simd_set_intv8(1,2,3,4,5,6,7,8);
-  simd_print_intv8(va);
-  打印的结果是这样的：
-  [8，7，6，5，4, 3, 2, 1 ]
+  va = simd_set_intv8 (1,2,3,4,5,6,7,8);
+  simd_print_intv8 (va);
+  The printed result is this:
+  [8, 7, 6, 5, 4, 3, 2, 1]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
@@ -3128,12 +3129,12 @@
  -
   uintv8 va:
  desc: |
-  uintv8类型的数据以8个int的形式打印到屏幕。
+  Data of type uintv8 is printed to the screen in the form of 8 ints.
  eg: |
-  va=simd_set_uintv8(1,2,3,4,5,6,7,8);
-  simd_print_uintv8(va);
-  打印的结果是这样的：
-  [8，7，6，5，4, 3, 2, 1 ]
+  va = simd_set_uintv8 (1,2,3,4,5,6,7,8);
+  simd_print_uintv8 (va);
+  The printed result is this:
+  [8, 7, 6, 5, 4, 3, 2, 1]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
@@ -3143,12 +3144,12 @@
  -
   int256 va:
  desc: |
-  int256类型的数据以4个long的形式打印到屏幕。
+  Data of type int256 is printed to the screen in the form of 4 longs.
  eg: |
-  va=simd_set_int256(1,2,3,4);
-  simd_print_int256(va);
-  打印的结果是这样的：
-  [ 0x4, 0x3, 0x2, 0x1 ]
+  va = simd_set_int256 (1,2,3,4);
+  simd_print_int256 (va);
+  The printed result is this:
+  [0x4, 0x3, 0x2, 0x1]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
@@ -3158,12 +3159,12 @@
  -
   uint256 va:
  desc: |
-  uint256类型的数据以4个long的形式打印到屏幕。
+  Data of type uint256 is printed to the screen in the form of 4 longs.
  eg: |
-  va=simd_set_uint256(1,2,3,4);
-  simd_print_uint256(va);
-  打印的结果是这样的：
-  [ 0x4, 0x3, 0x2, 0x1 ]
+  va = simd_set_uint256 (1,2,3,4);
+  simd_print_uint256 (va);
+  The printed result is this:
+  [0x4, 0x3, 0x2, 0x1]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
@@ -3173,12 +3174,12 @@
  -
   floatv4 va:
  desc: |
-  floatv4类型的数据以4个float的形式打印到屏幕。
+  Data of type floatv4 is printed to the screen in the form of 4 floats.
  eg: |
-  va=simd_set_floatv4(1.0,2.0,3.0,4.0);
-  simd_print_floatv4(va);
-  打印的结果是这样的：
-  [ 3.0，4.0，2.0, 1.0 ]
+  va = simd_set_floatv4 (1.0,2.0,3.0,4.0);
+  simd_print_floatv4 (va);
+  The printed result is this:
+  [3.0, 4.0, 2.0, 1.0]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-sp]
@@ -3188,12 +3189,12 @@
  -
   doublev4 va:
  desc: |
-  doublev4类型的数据以4个double的形式打印到屏幕。
+  Data of type doublev4 is printed to the screen in the form of 4 doubles.
  eg: |
-  va=simd_set_doublev4(1.0,2.0,3.0,4.0);
-  simd_print_doublev4(va);
-  打印的结果是这样的：
-  [ 4.0，3.0，2.0, 1.0 ]
+  va = simd_set_doublev4 (1.0,2.0,3.0,4.0);
+  simd_print_doublev4 (va);
+  The printed result is this:
+  [4.0, 3.0, 2.0, 1.0]
  header: simd.h
  tags: [MPE, CPE]
  cates: [SIMD, SIMD-print, SIMD-dp]
@@ -3202,29 +3203,29 @@
  inst: vlog2x
  params:
  -
-  int n: 真值表
+  int n: truth table
  -
   intv8 va:
  -
   intv8 vb:
  -
-  return intv8: n[(va << 1) + vb]
+  return intv8: n [(va << 1) + vb]
  desc: |
-  两个intv8类型操作数的可重构逻辑运算，按照n的逻辑真值，将va中的8个int类型的整型数据与vb中的8个int类型的整型数据进行逻辑运算。
-  此功能存在编译器级别bug，但是可以通过嵌入汇编的方式实现。
+  The reconfigurable logical operations of two intv8 type operands, according to the logical truth value of n, perform logical operations on the 8 int type integer data in va and 8 int type integer data in vb.
+  This feature has a compiler level bug, but it can be implemented by embedding assembly.
  eg: |
-  #define simd_vlog2x_patch(r, n, a, b) asm("vlog2x"n"idx %2, %1, %0" : "=r"(r) : "r"(b), "r"(a))
-  simd_vlog2x_patch(r, "e", a, b) <==> vlog2xe a, b, r <==> r = a | b
+  #define simd_vlog2x_patch (r, n, a, b) asm ("vlog2x" n "idx% 2,% 1,% 0": "= r" (r): "r" (b), "r" (a ))
+  simd_vlog2x_patch (r, "e", a, b) <==> vlog2xe a, b, r <==> r = a | b
  op: |
-  int truth[4];
-  for (i = 0; i < 4; i ++)
-    truth[i] = (n >> i) & 1;
-  for (i = 0; i < 8; i ++){
-    vc[i] = 0;
-    for (j = 0; j < 32; j ++){
-      a = (va[i] >> j) & 1;
-      b = (vb[i] >> j) & 1;
-      vc[i] = truth[(a << 1) + b];
+  int truth [4];
+  for (i = 0; i <4; i ++)
+    truth [i] = (n >> i) & 1;
+  for (i = 0; i <8; i ++) {
+    vc [i] = 0;
+    for (j = 0; j <32; j ++) {
+      a = (va [i] >> j) & 1;
+      b = (vb [i] >> j) & 1;
+      vc [i] = truth [(a << 1) + b];
     }
   }
   return vc;
@@ -3244,28 +3245,28 @@
  -
   intv8 vc:
  -
-  return intv8: truth_reg[n][(va << 2) + (vb << 1) + vc]
+  return intv8: truth_reg [n] [(va << 2) + (vb << 1) + vc]
  desc: |
-  三个intv8类型操作数的可重构逻辑运算，以n号真值表寄存器的逻辑真值，将va、vb、vc中的8个int类型的整型数据进行逻辑运算。
-  此功能存在编译器级别bug，但是可以通过嵌入汇编的方式实现。
+  The reconfigurable logic operation of three intv8 type operands, with the logic truth value of the n-th truth table register, perform logic operation on the 8 int type integer data in va, vb, vc.
+  This feature has a compiler level bug, but it can be implemented by embedding assembly.
  eg: |
-  #define vlog3r_setr(idx, truth) asm volatile("wcsr %1, %0" :  : "i"(0x80 + idx), "r"(truth))
-  #define simd_vlog3r(r, idx, a, b, c) asm("vlog3r"idx" %3, %2, %1, %0" : "=r"(r) : "r"(c), "r"(b), "r"(a))
-  vlog3r_setr(0x1, 0xfe) //将一号真值表寄存器设为0xfe
-  simd_vlog3r(r, "1", a, b, c) <==> r = a | b | c
+  #define vlog3r_setr (idx, truth) asm volatile ("wcsr% 1,% 0":: "i" (0x80 + idx), "r" (truth))
+  #define simd_vlog3r (r, idx, a, b, c) asm ("vlog3r" idx "% 3,% 2,% 1,% 0": "= r" (r): "r" (c), " r "(b)," r "(a))
+  vlog3r_setr (0x1, 0xfe) // Set the No.1 truth table register to 0xfe
+  simd_vlog3r (r, "1", a, b, c) <==> r = a | b | c
  op: |
-  //truth_reg是从核上的真值表寄存器列表
-  int zz = truth_reg[n];
-  int truth[8];
-  for (i = 0; i < 8; i ++)
-    truth[i] = (zz >> i) & 1;
-  for (i = 0; i < 8; i ++){
-    vc[i] = 0;
-    for (j = 0; j < 32; j ++){
-      a = (va[i] >> j) & 1;
-      b = (vb[i] >> j) & 1;
-      c = (vc[i] >> j) & 1;
-      vc[i] = truth[(a << 2) + (b << 1) + c];
+  // truth_reg is the list of truth table registers on the core
+  int zz = truth_reg [n];
+  int truth [8];
+  for (i = 0; i <8; i ++)
+    truth [i] = (zz >> i) & 1;
+  for (i = 0; i <8; i ++) {
+    vc [i] = 0;
+    for (j = 0; j <32; j ++) {
+      a = (va [i] >> j) & 1;
+      b = (vb [i] >> j) & 1;
+      c = (vc [i] >> j) & 1;
+      vc [i] = truth [(a << 2) + (b << 1) + c];
     }
   }
   return vc;
@@ -3283,18 +3284,18 @@
  -
   return uint256: va + vb
  desc: |
-  无符号256位整数Va与Vb（或8位无符号立即数#b）相加，和的低256位送到返回值中。如果发生进位，CA做加1操作。
-  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+  Unsigned 256-bit integer Va and Vb (or 8-bit unsigned immediate #b) are added, and the lower 256 bits of the sum are sent to the return value. If a carry occurs, the CA performs an increment operation.
+  CA is an internal 8-bit signed register that can represent an integer between -128 and +127, with an initial value of 0. CA overflow causes a "borrow borrow overflow" exception.
  op: |
-  //CA是进位寄存器
+  // CA is the carry register
   int CC = 0;
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
-    if (tmp > MAX_UINT)
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) (unsigned int) va [i] + (long) (unsigned int) vb [i] + CC;
+    if (tmp> MAX_UINT)
       CC = 1;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
-  CA += CC;
+  CA + = CC;
   return vc;
  header: "simd.h"
  cates: [SIMD, SIMD-arith, SIMD-octa-word]
@@ -3308,20 +3309,20 @@
  -
   uint256 vb:
  -
-  return uint256: va - vb
+  return uint256: va-vb
  desc: |
-  无符号256位整数Va与Vb（或8位无符号立即数#b）相减，差的低256位送到Vc中。如果发生借位，CA做减1操作。
-  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+  The unsigned 256-bit integer Va and Vb (or 8-bit unsigned immediate #b) are subtracted, and the lower 256 bits of the difference are sent to Vc. If a borrow occurs, the CA performs a minus 1 operation.
+  CA is an internal 8-bit signed register that can represent an integer between -128 and +127, with an initial value of 0. CA overflow causes a "borrow borrow overflow" exception.
  op: |
-  //CA是进位寄存器
+  // CA is the carry register
   int CC = 0;
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)(unsigned int)va[i] - (long)(unsigned int)vb[i] + CC;
-    if (tmp < 0)
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) (unsigned int) va [i]-(long) (unsigned int) vb [i] + CC;
+    if (tmp <0)
       CC = -1;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
-  CA += CC;
+  CA + = CC;
   return vc;
  header: "simd.h"
  cates: [SIMD, SIMD-arith, SIMD-octa-word]
@@ -3337,16 +3338,16 @@
  -
   return uint256: va + vb
  desc: |
-  无符号256位整数Va、Vb（或8位无符号立即数#b）相加，然后再加上CA中保存的有符号数，结果的低256位送到Vc中。如果发生进位，CA设置为进位值（可能为+1或+2）；如果发生借位，CA设置为-1；否则CA清0。
-  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+  Unsigned 256-bit integers Va and Vb (or 8-bit unsigned immediate #b) are added, and then the signed number stored in CA is added, and the lower 256 bits of the result are sent to Vc. If a carry occurs, CA is set to the carry value (may be +1 or +2); if a borrow occurs, CA is set to -1; otherwise, CA is cleared to 0.
+  CA is an internal 8-bit signed register that can represent an integer between -128 and +127, with an initial value of 0. CA overflow causes a "borrow borrow overflow" exception.
  op: |
-  //CA是进位寄存器
+  // CA is the carry register
   int CC = CA;
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
-    if (tmp > MAX_UINT)
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) (unsigned int) va [i] + (long) (unsigned int) vb [i] + CC;
+    if (tmp> MAX_UINT)
       CC = 1;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   CA = CC;
   return vc;
@@ -3362,17 +3363,17 @@
  -
   uint256 vb:
  -
-  return uint256: va - vb
+  return uint256: va-vb
  desc: |
-  无符号256位整数Va、Vb（或8位无符号立即数#b）相减，然后再加上CA中保存的有符号数，结果的低256位送到Vc中。如果发生进位，CA设置为+1；如果发生借位，CA设置为借位值（可能为-1或-2）；否则CA清0。
+  Unsigned 256-bit integers Va and Vb (or 8-bit unsigned immediate #b) are subtracted, and then the signed number stored in CA is added, and the lower 256 bits of the result are sent to Vc. If a carry occurs, CA is set to +1; if a borrow occurs, CA is set to the borrow value (may be -1 or -2); otherwise, CA is cleared to 0.
  op: |
-  //CA是进位寄存器
+  // CA is the carry register
   int CC = CA;
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)(unsigned int)va[i] - (long)(unsigned int)vb[i] + CC;
-    if (tmp < 0)
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) (unsigned int) va [i]-(long) (unsigned int) vb [i] + CC;
+    if (tmp <0)
       CC = -1;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   CA = CC;
   return vc;
@@ -3390,18 +3391,18 @@
  -
   return int256: va + vb
  desc: |
-  有符号256位整数Va与Vb（或8位无符号立即数#b）相加，和的低256位送到Vc中。如果发生进位，CA做加1操作；如果发生借位，CA做减1操作。发生进借位时，调整结果为-2^255到+2^255-1之间的合法有符号256位整数。
-  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+  The signed 256-bit integer Va and Vb (or 8-bit unsigned immediate #b) are added, and the lower 256 bits of the sum are sent to Vc. If a carry occurs, CA performs an increment operation; if a borrow occurs, CA performs a decrement operation. When borrowing occurs, the adjustment result is a legal signed 256-bit integer between -2 ^ 255 and + 2 ^ 255-1.
+  CA is an internal 8-bit signed register that can represent an integer between -128 and +127, with an initial value of 0. CA overflow causes a "borrow borrow overflow" exception.
  op: |
-  //CA是进位寄存器
+  // CA is the carry register
   int CC = 0;
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
-    if (tmp > MAX_UINT)
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) (unsigned int) va [i] + (long) (unsigned int) vb [i] + CC;
+    if (tmp> MAX_UINT)
       CC = 1;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
-  CA += CC;
+  CA + = CC;
   return vc;
  header: "simd.h"
  cates: [SIMD, SIMD-arith, SIMD-octa-word]
@@ -3415,20 +3416,20 @@
  -
   int256 vb:
  -
-  return int256: va - vb
+  return int256: va-vb
  desc: |
-  有符号256位整数Va与Vb（或8位无符号立即数#b）相减，差的低256位送到Vc中。如果发生进位，CA做加1操作；如果发生借位，CA做减1操作。发生进借位时，调整结果为-2^255到+2^255-1之间的合法有符号256位整数。
-  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+  The signed 256-bit integer Va and Vb (or 8-bit unsigned immediate #b) are subtracted, and the lower 256 bits of the difference are sent to Vc. If a carry occurs, CA performs an increment operation; if a borrow occurs, CA performs a decrement operation. When borrowing occurs, the adjustment result is a legal signed 256-bit integer between -2 ^ 255 and + 2 ^ 255-1.
+  CA is an internal 8-bit signed register that can represent an integer between -128 and +127, with an initial value of 0. CA overflow causes a "borrow borrow overflow" exception.
  op: |
-  //CA是进位寄存器
+  // CA is the carry register
   int CC = 0;
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)(unsigned int)va[i] - (long)(unsigned int)vb[i] + CC;
-    if (tmp < 0)
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) (unsigned int) va [i]-(long) (unsigned int) vb [i] + CC;
+    if (tmp <0)
       CC = -1;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
-  CA += CC;
+  CA + = CC;
   return vc;
  header: "simd.h"
  cates: [SIMD, SIMD-arith, SIMD-octa-word]
@@ -3444,16 +3445,16 @@
  -
   return int256: va + vb
  desc: |
-  有符号256位整数Va与Vb（或8位无符号立即数#b）与CA三者相加，结果的低256位送到Vc中。如果发生进位，CA设置为进位值（可能为+1或+2）；如果发生借位，CA设置为借位值（可能为-1或-2）；否则CA清0。发生进借位时，调整结果为-2^255到+2^255-1之间的合法有符号256位整数。
-  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+  The signed 256-bit integers Va and Vb (or 8-bit unsigned immediate #b) are added to CA, and the lower 256 bits of the result are sent to Vc. If a carry occurs, CA is set to the carry value (may be +1 or +2); if a borrow occurs, CA is set to the borrow value (may be -1 or -2); otherwise, CA is cleared to 0. When borrowing occurs, the adjustment result is a legal signed 256-bit integer between -2 ^ 255 and + 2 ^ 255-1.
+  CA is an internal 8-bit signed register that can represent an integer between -128 and +127, with an initial value of 0. CA overflow causes a "borrow borrow overflow" exception.
  op: |
-  //CA是进位寄存器
+  // CA is the carry register
   int CC = CA;
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
-    if (tmp > MAX_UINT)
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) (unsigned int) va [i] + (long) (unsigned int) vb [i] + CC;
+    if (tmp> MAX_UINT)
       CC = 1;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   CA = CC;
   return vc;
@@ -3471,16 +3472,16 @@
  -
   return int256: va + vb
  desc: |
-  有符号256位整数Va与Vb（或8位无符号立即数#b）相减，然后再加上CA中保存的有符号数，结果的低256位送到Vc中。如果发生进位，CA设置为进位值（可能为+1或+2）；如果发生借位，CA设置为借位值（可能为-1或-2）；否则CA清0。发生进借位时，调整结果为-2^255到+2^255-1之间的合法有符号256位整数。
-  CA为内部8位有符号寄存器，可表示-128到+127之间的整数，初值为0。CA溢出时导致“进借位溢出”异常。
+  The signed 256-bit integer Va and Vb (or 8-bit unsigned immediate #b) are subtracted, and then the signed number stored in CA is added, and the lower 256 bits of the result are sent to Vc. If a carry occurs, CA is set to the carry value (may be +1 or +2); if a borrow occurs, CA is set to the borrow value (may be -1 or -2); otherwise CA is cleared to 0. When borrowing occurs, the adjustment result is a legal signed 256-bit integer between -2 ^ 255 and + 2 ^ 255-1.
+  CA is an internal 8-bit signed register that can represent an integer between -128 and +127, with an initial value of 0. CA overflow causes a "borrow borrow overflow" exception.
  op: |
-  //CA是进位寄存器
+  // CA is the carry register
   int CC = CA;
-  for (i = 0; i < 8; i ++){
-    long tmp = (long)(unsigned int)va[i] + (long)(unsigned int)vb[i] + CC;
-    if (tmp > MAX_UINT)
+  for (i = 0; i <8; i ++) {
+    long tmp = (long) (unsigned int) va [i] + (long) (unsigned int) vb [i] + CC;
+    if (tmp> MAX_UINT)
       CC = 1;
-    vc[i] = tmp;
+    vc [i] = tmp;
   }
   CA = CC;
   return vc;
@@ -3498,20 +3499,20 @@
  -
   return uint256: va * vb
  desc: |
-  向量寄存器Va的低128位和Vb的低128位（或8位无符号立即数#b）作为无符号整数进行乘法操作，得到的256位无符号数结果写入目标寄存器Vc。Va、Vb的高128位忽略。 
+  The lower 128 bits of the vector register Va and the lower 128 bits of Vb (or 8-bit unsigned immediate #b) are multiplied as unsigned integers, and the resulting 256-bit unsigned result is written to the target register Vc. The upper 128 bits of Va and Vb are ignored.
  op: |
-  long prod[8];
-  for (i = 0; i < 8; i ++)
-    prod[i] = 0;
-  for (i = 0; i < 4; i ++)
-    for (j = 0; j < 4; j ++)
-      prod[i + j] += (long)(unsigned int)va[i] * (long)(unsigned int)vb[i];
-  for (i = 0; i < 8; i ++){
-    prod[i + 1] += prod[i] / (MAX_UINT + 1);
-    prod[i] %= (MAX_UINT + 1);
+  long prod [8];
+  for (i = 0; i <8; i ++)
+    prod [i] = 0;
+  for (i = 0; i <4; i ++)
+    for (j = 0; j <4; j ++)
+      prod [i + j] + = (long) (unsigned int) va [i] * (long) (unsigned int) vb [i];
+  for (i = 0; i <8; i ++) {
+    prod [i + 1] + = prod [i] / (MAX_UINT + 1);
+    prod [i]% = (MAX_UINT + 1);
   }
-  return (uint256)simd_set_intv8(prod[0], prod[1], prod[2], prod[3]
-                               , prod[4], prod[5], prod[6], prod[7]);
+  return (uint256) simd_set_intv8 (prod [0], prod [1], prod [2], prod [3]
+                               , prod [4], prod [5], prod [6], prod [7]);
  header: "simd.h"
  cates: [SIMD, SIMD-arith, SIMD-octa-word]
  tags: [CPE]
@@ -3528,34 +3529,34 @@
  -
   return intv8:
  desc: |
-  返回值的八个32bit的数由Va和Vb装填，Va负责装填4个高32bit，Vb负责装填4个低32bit，具体如何装填由Rc说明：
-  Rc的<30:28>指出vd的<255:224>来自Va的位置
-  Rc的<26:24>指出vd的<223:192>来自Va的位置
-  Rc的<22:20>指出vd的<191:160>来自Va的位置
-  Rc的<18:16>指出vd的<159:128>来自Va的位置
-  Rc的<14:12>指出vd的<127:96>来自Vb的位置
-  Rc的<10:8>指出vd的<95:64>来自Vb的位置
-  Rc的<6:4>指出vd的<63:32>来自Vb的位置
-  Rc的<2:0>指出vd的<31:0>来自Vb的位置
-  Va/Vb的位置（0~7）含义为，Va/Vb分成自然对界的8个32bit，位置为0表示第0个32bit（[31:0]），依次类推。
+  The eight 32-bit numbers of the returned value are filled by Va and Vb. Va is responsible for filling 4 high 32bits, and Vb is responsible for filling 4 low 32bits. The specific how to fill is explained by Rc:
+  Rc's <30:28> points out that vd's <255: 224> is from Va's location
+  Rc's <26:24> pointed out that vd's <223: 192> came from Va's location
+  Rc's <22:20> pointed out that vd's <191: 160> came from Va's location
+  Rc's <18:16> points out that vd's <159: 128> is from Va's location
+  Rc's <14:12> points out that vd's <127: 96> comes from the position of Vb
+  Rc's <10: 8> points out that vd's <95:64> comes from the location of Vb
+  Rc's <6: 4> points out that vd's <63:32> comes from the position of Vb
+  Rc's <2: 0> points out that vd's <31: 0> comes from Vb's position
+  The position of Va / Vb (0 ~ 7) means that Va / Vb is divided into 8 32bits of natural boundaries, and the position of 0 means 0th 32bit ([31: 0]), and so on.
  eg: |
-  intv8 va,vb,vd;
+  intv8 va, vb, vd;
   int rc = 0x12345670;
-  vd = vshuffle（va, vb, rc）。
-  含义是从高到低，vd的8个32bit分别来源于：
-  0x1：va的第1个32bit；
-  0x2：va的第2个32bit；
-  0x3：va的第3个32bit；
-  0x4：va的第4个32bit；
-  0x5：vb的第5个32bit；
-  0x6：vb的第6个32bit；
-  0x7：vb的第7个32bit；
-  0x0：vb的第0个32bit。
+  vd = vshuffle (va, vb, rc).
+  The meaning is from high to low, the 8 32bits of vd are derived from:
+  0x1: the first 32bit of va;
+  0x2: the second 32bit of va;
+  0x3: the third 32bit of va;
+  0x4: the fourth 32bit of va;
+  0x5: the fifth 32bit of vb;
+  0x6: the sixth 32bit of vb;
+  0x7: the seventh 32bit of vb;
+  0x0: 0th 32bit of vb.
  op: |
-  for (i = 0; i < 4; i ++)
-    vc[i] = vb[(rc >> (i * 4))];
-  for (i = 4; i < 8; i ++)
-    vc[i] = va[(rc >> (i * 4))];
+  for (i = 0; i <4; i ++)
+    vc [i] = vb [(rc >> (i * 4))];
+  for (i = 4; i <8; i ++)
+    vc [i] = va [(rc >> (i * 4))];
   return vc;
  header: "simd.h"
  cates: [SIMD, SIMD-misc, SIMD-int]
@@ -3571,23 +3572,23 @@
  -
   int Rc:
  -
-  return doublev4: 
+  return doublev4:
  desc: |
-  返回值的四个64bit的数由Va和Vb装填，Va负责装填Vd的2个高64bit，Vb负责装填Vd的2个低64bit，具体如何装填由Rc/#c说明：
-  Rc/#c的<7:6>指出vd的<255:192>来自Va的位置
-  Rc/#c的<5:4>指出vd的<191:128>来自Va的位置
-  Rc/#c的<3:2>指出vd的<127:64>来自Vb的位置
-  Rc/#c的<1:0>指出vd的<63:0>来自Vb的位置
-  Va/Vb的位置（0~3）含义为，Va/Vb分成自然对界的4个64bit，位置为0表示第0个64bit（[63:0]），依次类推。
-  示例：以立即数操作数为例说明
-  doublev4 va,vb,vd;
-  vd = simd_shuffle(va, vb, 8’b01111000)
-  含义是从高到低，vd的4个64bit分别来源于va的第1个64比特，va的第3个64bit，vb的第2个64bit，vb的第0个64bit。
+  The four 64-bit numbers of the return value are filled by Va and Vb. Va is responsible for filling the two high 64bits of Vd, and Vb is responsible for the two low 64bits of Vd. How to fill is explained by Rc / # c:
+  Rc / # c's <7: 6> points out that vd's <255: 192> is from Va's location
+  Rc / # c's <5: 4> points out that vd's <191: 128> is from Va's location
+  Rc / # c's <3: 2> points out that vd's <127: 64> comes from the location of Vb
+  Rc / # c's <1: 0> points out that vd's <63: 0> comes from the position of Vb
+  The position of Va / Vb (0 ~ 3) means that Va / Vb is divided into 4 64bits with natural boundaries, and the position 0 means the 0th 64bit ([63: 0]), and so on.
+  Example: Take the immediate operand as an example
+  doublev4 va, vb, vd;
+  vd = simd_shuffle (va, vb, 8’b01111000)
+  The meaning is from high to low. The four 64bits of vd are derived from the first 64bits of va, the third 64bits of va, the second 64bits of vb, and the zeroth 64bits of vb.
  op: |
-  for (i = 0; i < 2; i ++)
-    vc[i] = vb[(rc >> (i * 2))];
-  for (i = 2; i < 4; i ++)
-    vc[i] = va[(rc >> (i * 2))];
+  for (i = 0; i <2; i ++)
+    vc [i] = vb [(rc >> (i * 2))];
+  for (i = 2; i <4; i ++)
+    vc [i] = va [(rc >> (i * 2))];
   return vc;
  header: "simd.h"
  cates: [SIMD, SIMD-misc, SIMD-dp]
@@ -3605,21 +3606,21 @@
  -
   return floatv4:
  desc: |
-  返回值的四个64bit的数由Va和Vb装填，Va负责装填Vd的2个高64bit，Vb负责装填Vd的2个低64bit，具体如何装填由Rc/#c说明：
-  Rc/#c的<7:6>指出vd的<255:192>来自Va的位置
-  Rc/#c的<5:4>指出vd的<191:128>来自Va的位置
-  Rc/#c的<3:2>指出vd的<127:64>来自Vb的位置
-  Rc/#c的<1:0>指出vd的<63:0>来自Vb的位置
-  Va/Vb的位置（0~3）含义为，Va/Vb分成自然对界的4个64bit，位置为0表示第0个64bit（[63:0]），依次类推。
-  示例：以立即数操作数为例说明
-  doublev4 va,vb,vd;
-  vd = simd_shuffle(va, vb, 8’b01111000)
-  含义是从高到低，vd的4个64bit分别来源于va的第1个64比特，va的第3个64bit，vb的第2个64bit，vb的第0个64bit。
+  The four 64-bit numbers of the return value are filled by Va and Vb. Va is responsible for filling the two high 64bits of Vd, and Vb is responsible for the two low 64bits of Vd. How to fill is explained by Rc / # c
+  Rc / # c's <7: 6> points out that vd's <255: 192> is from Va's location
+  Rc / # c's <5: 4> points out that vd's <191: 128> is from Va's location
+  Rc / # c's <3: 2> points out that vd's <127: 64> comes from the location of Vb
+  Rc / # c's <1: 0> points out that vd's <63: 0> comes from the position of Vb
+  The position of Va / Vb (0 ~ 3) means that Va / Vb is divided into 4 64bits with natural boundaries, and the position 0 means the 0th 64bit ([63: 0]), and so on.
+  Example: Take the immediate operand as an example
+  doublev4 va, vb, vd;
+  vd = simd_shuffle (va, vb, 8’b01111000)
+  The meaning is from high to low. The four 64bits of vd are derived from the first 64bits of va, the third 64bits of va, the second 64bits of vb, and the zeroth 64bits of vb.
  op: |
-  for (i = 0; i < 2; i ++)
-    vc[i] = vb[(rc >> (i * 2))];
-  for (i = 2; i < 4; i ++)
-    vc[i] = va[(rc >> (i * 2))];
+  for (i = 0; i <2; i ++)
+    vc [i] = vb [(rc >> (i * 2))];
+  for (i = 2; i <4; i ++)
+    vc [i] = va [(rc >> (i * 2))];
   return vc;
  header: "simd.h"
  cates: [SIMD, SIMD-misc, SIMD-sp]
@@ -3629,11 +3630,11 @@
  inst: vldr
  params:
  -
-  intv8 va: 装入结果
+  intv8 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行行广播。
+  Extended type loading, load 32 bytes of data from a continuous memory area into a vector variable, and broadcast.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3642,11 +3643,11 @@
  inst: vldr
  params:
  -
-  int256 va: 装入结果
+  int256 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行行广播。
+  Extended type loading, load 32 bytes of data from a continuous memory area into a vector variable, and broadcast.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-octa-word]
  tags: [CPE]
@@ -3655,11 +3656,11 @@
  inst: vldr
  params:
  -
-  doublev4 va: 装入结果
+  doublev4 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行行广播。
+  Extended type loading, load 32 bytes of data from a continuous memory area into a vector variable, and broadcast.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-dp]
  tags: [CPE]
@@ -3668,11 +3669,11 @@
  inst: vldc
  params:
  -
-  intv8 va: 装入结果
+  intv8 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行列广播。
+  Extended type loading, load 32-byte data from a continuous memory area into a vector variable, and perform column broadcast.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3681,11 +3682,11 @@
  inst: vldc
  params:
  -
-  int256 va: 装入结果
+  int256 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行列广播。
+  Extended type loading, load 32-byte data from a continuous memory area into a vector variable, and perform column broadcast.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-octa-word]
  tags: [CPE]
@@ -3694,11 +3695,11 @@
  inst: vldc
  params:
  -
-  doublev4 va: 装入结果
+  doublev4 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入，将32字节长度的数据从连续内存区域中装入到一个向量变量中，并进行列广播。
+  Extended type loading, load 32-byte data from a continuous memory area into a vector variable, and perform column broadcast.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-dp]
  tags: [CPE]
@@ -3707,11 +3708,11 @@
  inst: ldder
  params:
  -
-  intv8 va: 装入结果
+  intv8 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行行向广播。
+  Load and expand the extension type. Load a double-precision floating-point or long word (64-bit) from memory, and simultaneously write to the position of the four double-precision floating-point vector elements in the vector register Va, and broadcast it line by line.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3720,11 +3721,11 @@
  inst: ldder
  params:
  -
-  int256 va: 装入结果
+  int256 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行行向广播。
+  Load and expand the extension type. Load a double-precision floating-point or long word (64-bit) from memory, and simultaneously write to the position of the four double-precision floating-point vector elements in the vector register Va, and broadcast it line by line.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-octa-word]
  tags: [CPE]
@@ -3733,11 +3734,11 @@
  inst: ldder
  params:
  -
-  doublev4 va: 装入结果
+  doublev4 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行行向广播。
+  Load and expand the extension type. Load a double-precision floating-point or long word (64-bit) from memory, and simultaneously write to the position of the four double-precision floating-point vector elements in the vector register Va, and broadcast it line by line.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-dp]
  tags: [CPE]
@@ -3746,11 +3747,11 @@
  inst: lddec
  params:
  -
-  intv8 va: 装入结果
+  intv8 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行列向广播。
+  Load and expand the extension type. Load a double-precision floating-point or long word (64 bits) from memory, and simultaneously write to the position of four double-precision floating-point vector elements in the vector register Va, and perform column-wise broadcasting.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3759,11 +3760,11 @@
  inst: lddec
  params:
  -
-  int256 va: 装入结果
+  int256 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行列向广播。
+  Load and expand the extension type. Load a double-precision floating-point or long word (64 bits) from memory, and simultaneously write to the position of four double-precision floating-point vector elements in the vector register Va, and perform column-wise broadcasting.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-octa-word]
  tags: [CPE]
@@ -3772,11 +3773,11 @@
  inst: lddec
  params:
  -
-  doublev4 va: 装入结果
+  doublev4 va: load result
  -
-  void *addr: 内存地址
+  void * addr: memory address
  desc: |
-  扩展类型的装入并扩展。从存储器装载一个双精度浮点或长字（64位），同时写到向量寄存器Va的四个双精度浮点向量元素的位置，并进行列向广播。
+  Load and expand the extension type. Load a double-precision floating-point or long word (64 bits) from memory, and simultaneously write to the position of four double-precision floating-point vector elements in the vector register Va, and perform column-wise broadcasting.
  header: "simd.h"
  cates: [SIMD, SIMD-load, SIMD-regcomm, SIMD-dp]
  tags: [CPE]
@@ -3785,11 +3786,11 @@
  inst: getr
  params:
  -
-  intv8 va: 装入结果
+  intv8 va: load result
  -
   return intv8:
  desc: |
-  读行通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+  Read the line communication buffer, read the vector in the buffer into the vector register, and clear the buffer after reading.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3798,11 +3799,11 @@
  inst: getr
  params:
  -
-  int256 va: 装入结果
+  int256 va: load result
  -
   return int256:
  desc: |
-  读行通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+  Read the line communication buffer, read the vector in the buffer into the vector register, and clear the buffer after reading.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3811,11 +3812,11 @@
  inst: getr
  params:
  -
-  doublev4 va: 装入结果
+  doublev4 va: load result
  -
   return doublev4:
  desc: |
-  读行通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+  Read the line communication buffer, read the vector in the buffer into the vector register, and clear the buffer after reading.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-dp]
  tags: [CPE]
@@ -3824,11 +3825,11 @@
  inst: getr
  params:
  -
-  floatv4 va: 装入结果
+  floatv4 va: load result
  -
   return floatv4:
  desc: |
-  读行通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+  Read the line communication buffer, read the vector in the buffer into the vector register, and clear the buffer after reading.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-sp]
  tags: [CPE]
@@ -3837,11 +3838,11 @@
  inst: getc
  params:
  -
-  intv8 va: 装入结果
+  intv8 va: load result
  -
   return intv8:
  desc: |
-  读列通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+  Read the column communication buffer, read the vector in the buffer into the vector register, and clear the buffer after reading.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3850,11 +3851,11 @@
  inst: getc
  params:
  -
-  int256 va: 装入结果
+  int256 va: load result
  -
   return int256:
  desc: |
-  读列通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+  Read the column communication buffer, read the vector in the buffer into the vector register, and clear the buffer after reading.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3863,11 +3864,11 @@
  inst: getc
  params:
  -
-  doublev4 va: 装入结果
+  doublev4 va: load result
  -
   return doublev4:
  desc: |
-  读列通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+  Read the column communication buffer, read the vector in the buffer into the vector register, and clear the buffer after reading.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-dp]
  tags: [CPE]
@@ -3876,11 +3877,11 @@
  inst: getc
  params:
  -
-  floatv4 va: 装入结果
+  floatv4 va: load result
  -
   return floatv4:
  desc: |
-  读列通信缓冲，将缓冲中的向量读入向量寄存器中，缓冲执行读后清。
+  Read the column communication buffer, read the vector in the buffer into the vector register, and clear the buffer after reading.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-sp]
  tags: [CPE]
@@ -3889,11 +3890,11 @@
  inst: putr
  params:
  -
-  intv8 va: 要发送的向量
+  intv8 va: vector to be sent
  -
-  int dest: 目标从核（8为广播）
+  int dest: target slave core (8 for broadcast)
  desc: |
-  向同行上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+  Send data from the core to the target on the peer, the data width is the width of the vector register. PUT can be a point-to-point operation or a broadcast operation. When the target is at least one full during the broadcast, it pauses. The lower 4 bits of Rb are valid, of which Rb [3] (or #dest [3]) is the communication type bit. When it is 0, it indicates point-to-point operation, then Rb [2: 0] (or #dest [2: 0]) is A 3-bit target bit vector indicating the target slave core number; when Rb [3] (or #dest [3]) is 1, it indicates a broadcast operation, ignoring the Rb [2: 0] bits.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3902,11 +3903,11 @@
  inst: putr
  params:
  -
-  int256 va: 要发送的向量
+  int256 va: vector to be sent
  -
-  int dest: 目标从核（8为广播）
+  int dest: target slave core (8 for broadcast)
  desc: |
-  向同行上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+  Send data from the core to the target on the peer, the data width is the width of the vector register. PUT can be a point-to-point operation or a broadcast operation. When the target is at least one full during the broadcast, it pauses. The lower 4 bits of Rb are valid, of which Rb [3] (or #dest [3]) is the communication type bit. When it is 0, it indicates point-to-point operation, then Rb [2: 0] (or #dest [2: 0]) is a A 3-bit target bit vector indicating the target slave core number; when Rb [3] (or #dest [3]) is 1, it indicates a broadcast operation, ignoring the Rb [2: 0] bits.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3915,11 +3916,11 @@
  inst: putr
  params:
  -
-  doublev4 va: 要发送的向量
+  doublev4 va: vector to be sent
  -
-  int dest: 目标从核（8为广播）
+  int dest: target slave core (8 for broadcast)
  desc: |
-  向同行上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+  Send data from the core to the target on the peer, the data width is the width of the vector register. PUT can be a point-to-point operation or a broadcast operation. When the target is at least one full during the broadcast, it pauses. The lower 4 bits of Rb are valid, of which Rb [3] (or #dest [3]) is the communication type bit. When it is 0, it indicates point-to-point operation, then Rb [2: 0] (or #dest [2: 0]) is a A 3-bit target bit vector indicating the target slave core number; when Rb [3] (or #dest [3]) is 1, it indicates a broadcast operation, ignoring the Rb [2: 0] bits.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-dp]
  tags: [CPE]
@@ -3928,11 +3929,11 @@
  inst: putr
  params:
  -
-  floatv4 va: 要发送的向量
+  floatv4 va: vector to be sent
  -
-  int dest: 目标从核（8为广播）
+  int dest: target slave core (8 for broadcast)
  desc: |
-  向同行上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+  Send data from the core to the target on the peer, the data width is the width of the vector register. PUT can be a point-to-point operation or a broadcast operation. When the target is at least one full during the broadcast, it pauses. The lower 4 bits of Rb are valid, of which Rb [3] (or #dest [3]) is the communication type bit. When it is 0, it indicates point-to-point operation, then Rb [2: 0] (or #dest [2: 0]) is a A 3-bit target bit vector indicating the target slave core number; when Rb [3] (or #dest [3]) is 1, it indicates a broadcast operation, ignoring the Rb [2: 0] bits.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-sp]
  tags: [CPE]
@@ -3941,11 +3942,11 @@
  inst: putc
  params:
  -
-  intv8 va: 要发送的向量
+  intv8 va: vector to be sent
  -
-  int dest: 目标从核（8为广播）
+  int dest: target slave core (8 for broadcast)
  desc: |
-  向同列上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+  Send data to the target slave core on the same column, the data width is the width of the vector register. PUT can be a point-to-point operation or a broadcast operation. When the target is at least one full during the broadcast, it pauses. The lower 4 bits of Rb are valid. Among them, Rb [3] (or #dest [3]) is the communication type bit. When it is 0, it indicates point-to-point operation. A 3-bit target bit vector indicating the target slave core number; when Rb [3] (or #dest [3]) is 1, it indicates a broadcast operation, ignoring the Rb [2: 0] bits.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3954,11 +3955,11 @@
  inst: putc
  params:
  -
-  int256 va: 要发送的向量
+  int256 va: vector to be sent
  -
-  int dest: 目标从核（8为广播）
+  int dest: target slave core (8 for broadcast)
  desc: |
-  向同列上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+  Send data to the target slave core on the same column, the data width is the width of the vector register. PUT can be a point-to-point operation or a broadcast operation. When the target is at least one full during the broadcast, it pauses. The lower 4 bits of Rb are valid, of which Rb [3] (or #dest [3]) is the communication type bit. When it is 0, it indicates point-to-point operation, then Rb [2: 0] (or #dest [2: 0]) is A 3-bit target bit vector indicating the target slave core number; when Rb [3] (or #dest [3]) is 1, it indicates a broadcast operation, ignoring the Rb [2: 0] bits.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-int]
  tags: [CPE]
@@ -3967,11 +3968,11 @@
  inst: putc
  params:
  -
-  doublev4 va: 要发送的向量
+  doublev4 va: vector to be sent
  -
-  int dest: 目标从核（8为广播）
+  int dest: target slave core (8 for broadcast)
  desc: |
-  向同列上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+  Send data to the target slave core on the same column, the data width is the width of the vector register. PUT can be a point-to-point operation or a broadcast operation. When the target is at least one full during the broadcast, it pauses. The lower 4 bits of Rb are valid. Among them, Rb [3] (or #dest [3]) is the communication type bit. When it is 0, it indicates point-to-point operation. A 3-bit target bit vector indicating the target slave core number; when Rb [3] (or #dest [3]) is 1, it indicates a broadcast operation, ignoring Rb [2: 0] bits.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-dp]
  tags: [CPE]
@@ -3980,11 +3981,11 @@
  inst: putc
  params:
  -
-  floatv4 va: 要发送的向量
+  floatv4 va: vector to be sent
  -
-  int dest: 目标从核（8为广播）
+  int dest: target slave core (8 for broadcast)
  desc: |
-  向同列上目标从核发送数据，数据宽度为向量寄存器宽度。PUT可以点对点操作或广播操作，当广播时目标方至少一个满时停顿。Rb低4位有效，其中Rb[3]（或#dest[3]）为通信类型位，为0时表示点对点操作，则Rb[2:0]（或#dest[2:0]）是一个3位目标位向量，指示目标从核号；当Rb[3]（或#dest[3]）为1时表示广播操作，忽略Rb[2:0]位。
+  Send data to the target slave core on the same column, the data width is the width of the vector register. PUT can be a point-to-point operation or a broadcast operation. When the target is at least one full during the broadcast, it pauses. The lower 4 bits of Rb are valid. Among them, Rb [3] (or #dest [3]) is the communication type bit. When it is 0, it indicates point-to-point operation. A 3-bit target bit vector indicating the target slave core number; when Rb [3] (or #dest [3]) is 1, it indicates a broadcast operation, ignoring the Rb [2: 0] bits.
  header: "simd.h"
  cates: [SIMD, SIMD-regcomm, SIMD-sp]
  tags: [CPE]
@@ -4001,7 +4002,7 @@
  -
   return intv8:
  desc: |
-  根据#c，从Va指出的8个表内偏移中选择1个，与Rb中的首地址相加，得到访问LDM的地址；然后访问LDM，将查到的32bit数据写入硬件256b缓冲相应位置。如果#c为3’b0，访问LDM结束后会把硬件256b缓冲的结果写回Vd。
+  According to #c, choose one of the eight offsets in the table pointed out by Va, and add it to the first address in Rb to get the address to access the LDM; then access the LDM and write the 32bit data to the hardware 256b buffer position. If #c is 3’b0, the result of hardware 256b buffering will be written back to Vd after the access LDM is over.
  header: "simd.h"
  cates: [SIMD, SIMD-misc, SIMD-int]
  tags: [CPE]
@@ -4018,15 +4019,15 @@
  -
   return intv8:
  desc: |
-  生成8条查表指令：
-  simd_selldw (va,b,7);
-  simd_selldw (va,b,6);
-  simd_selldw (va,b,5);
-  simd_selldw (va,b,4);
-  simd_selldw (va,b,3);
-  simd_selldw (va,b,2);
-  simd_selldw (va,b,1);
-  vc=simd_selldw (va,b,0);
+  Generate 8 table lookup instructions:
+  simd_selldw (va, b, 7);
+  simd_selldw (va, b, 6);
+  simd_selldw (va, b, 5);
+  simd_selldw (va, b, 4);
+  simd_selldw (va, b, 3);
+  simd_selldw (va, b, 2);
+  simd_selldw (va, b, 1);
+  vc = simd_selldw (va, b, 0);
  header: "simd.h"
  cates: [SIMD, SIMD-misc, SIMD-int]
  tags: [CPE]
